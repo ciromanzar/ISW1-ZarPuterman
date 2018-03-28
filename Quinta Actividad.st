@@ -11,6 +11,14 @@ DenotativeObject subclass: #I
 I class
 	instanceVariableNames: 'next previous'!
 
+!I class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:11:27'!
++ otroNumero
+	^ otroNumero next! !
+
+!I class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:19:44'!
+- otroNumero
+	^ self error: 'descripcionDeErrorDeNumerosNegativosNoSoportados'! !
+
 !I class methodsFor: 'as yet unclassified' stamp: 'CZ 3/22/2018 21:46:11'!
 next 
 	^II! !
@@ -35,9 +43,9 @@ DenotativeObject subclass: #II
 II class
 	instanceVariableNames: 'next previous'!
 
-!II class methodsFor: 'as yet unclassified' stamp: 'CZ 3/26/2018 20:56:05'!
+!II class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:11:11'!
 + otroNumero
-	^(self next) + otroNumero previous! !
+	^self previous + otroNumero next! !
 
 !II class methodsFor: 'as yet unclassified' stamp: 'CZ 3/22/2018 21:54:21'!
 next
@@ -61,7 +69,7 @@ previous
 previous: otroNumero
 	^previous := otroNumero! !
 
-II instVarNamed: 'next' put: AnObsoleteIII!
+II instVarNamed: 'next' put: nil!
 II instVarNamed: 'previous' put: I!
 
 !classDefinition: #PeanoTest category: #'Quinta Actividad'!
