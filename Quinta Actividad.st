@@ -11,11 +11,15 @@ DenotativeObject subclass: #I
 I class
 	instanceVariableNames: 'next previous'!
 
+!I class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:26:35'!
+* otroNumero
+	^ otroNumero! !
+
 !I class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:11:27'!
 + otroNumero
 	^ otroNumero next! !
 
-!I class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:19:44'!
+!I class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 23:54:08'!
 - otroNumero
 	^ self error: 'descripcionDeErrorDeNumerosNegativosNoSoportados'! !
 
@@ -43,9 +47,20 @@ DenotativeObject subclass: #II
 II class
 	instanceVariableNames: 'next previous'!
 
+!II class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:22'!
+* otroNumero
+	^ self previous * (otroNumero + otroNumero)! !
+
 !II class methodsFor: 'as yet unclassified' stamp: 'CZ 3/28/2018 18:11:11'!
 + otroNumero
 	^self previous + otroNumero next! !
+
+!II class methodsFor: 'as yet unclassified' stamp: 'lp 4/1/2018 10:39:07'!
+- otroNumero
+	^ otroNumero name  ~= 'I' ifTrue:[
+		^self previous - otroNumero previous
+		]ifFalse:[^self previous].
+	! !
 
 !II class methodsFor: 'as yet unclassified' stamp: 'CZ 3/22/2018 21:54:21'!
 next
@@ -69,8 +84,112 @@ previous
 previous: otroNumero
 	^previous := otroNumero! !
 
-II instVarNamed: 'next' put: nil!
+II instVarNamed: 'next' put: III!
 II instVarNamed: 'previous' put: I!
+
+!classDefinition: #III category: #'Quinta Actividad'!
+DenotativeObject subclass: #III
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Quinta Actividad'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'III class' category: #'Quinta Actividad'!
+III class
+	instanceVariableNames: 'next previous'!
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:37'!
+* otroNumero
+	^ self previous * (otroNumero + otroNumero)! !
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:37'!
++ otroNumero
+	^self previous + otroNumero next! !
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 4/1/2018 10:38:56'!
+- otroNumero
+	^ otroNumero name  ~= 'I' ifTrue:[
+		^self previous - otroNumero previous
+		]ifFalse:[^self previous].! !
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:37'!
+next
+
+	next ifNil:
+	[
+		next := self cloneNamed: (self name, 'I').
+		next previous: self.
+		
+	].
+	^next
+
+	
+	! !
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:37'!
+previous
+	^previous! !
+
+!III class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:37'!
+previous: otroNumero
+	^previous := otroNumero! !
+
+III instVarNamed: 'next' put: IIII!
+III instVarNamed: 'previous' put: II!
+
+!classDefinition: #IIII category: #'Quinta Actividad'!
+DenotativeObject subclass: #IIII
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Quinta Actividad'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'IIII class' category: #'Quinta Actividad'!
+IIII class
+	instanceVariableNames: 'next previous'!
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:41'!
+* otroNumero
+	^ self previous * (otroNumero + otroNumero)! !
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:41'!
++ otroNumero
+	^self previous + otroNumero next! !
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 4/1/2018 10:39:02'!
+- otroNumero
+	^ otroNumero name  ~= 'I' ifTrue:[
+		^self previous - otroNumero previous
+		]ifFalse:[^self previous].! !
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:41'!
+next
+
+	next ifNil:
+	[
+		next := self cloneNamed: (self name, 'I').
+		next previous: self.
+		
+	].
+	^next
+
+	
+	! !
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:41'!
+previous
+	^previous! !
+
+!IIII class methodsFor: 'as yet unclassified' stamp: 'lp 3/31/2018 17:27:41'!
+previous: otroNumero
+	^previous := otroNumero! !
+
+IIII instVarNamed: 'next' put: nil!
+IIII instVarNamed: 'previous' put: III!
 
 !classDefinition: #PeanoTest category: #'Quinta Actividad'!
 DenotativeObject subclass: #PeanoTest
