@@ -192,10 +192,11 @@ Object subclass: #Numero
 	poolDictionaries: ''
 	category: 'Numero-Exercise'!
 
-!Numero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 22:48'!
-* aMultiplier
-
-	self subclassResponsibility ! !
+!Numero methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:29:41'!
+* aMultiplier 
+	
+	self subclassResponsibility 
+	! !
 
 !Numero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 22:49'!
 + anAdder
@@ -282,20 +283,20 @@ initalizeWith: aValue
 	value := aValue! !
 
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:13'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:30:25'!
 * aMultiplier 
 	
-	^self class with: value * aMultiplier integerValue
+	^aMultiplier multiplicatePorEntero: self.
 	! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'CZ 4/16/2018 21:46:45'!
 + anAdder  
 	^ anAdder sumateConEntero: self.! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:41:30'!
 / aDivisor 
 	
-	^Fraccion with: self over: aDivisor! !
+	^aDivisor dividirAEntero: self! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 21:55'!
 // aDivisor 
@@ -307,9 +308,26 @@ greatestCommonDivisorWith: anEntero
 	
 	^self class with: (value gcd: anEntero integerValue)! !
 
+!Entero methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:13:03'!
+multiplicatePorEntero: unEntero
+	^Entero with: (unEntero integerValue  * self integerValue).! !
+
 !Entero methodsFor: 'arithmetic operations' stamp: 'CZ 4/16/2018 21:55:17'!
 sumateConEntero: unEntero
 	^self class with: value + unEntero integerValue! !
+
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:51:30'!
+dividirAEntero: anEntero 
+	^Fraccion with: anEntero over: self ! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 19:06:58'!
+dividirAFraccion: aFraccion 
+	^aFraccion numerator / (aFraccion denominator * self)! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:38:10'!
+multiplicatePorFraccion: aFraccion 
+	^aFraccion multiplicatePorEntero: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -370,10 +388,10 @@ hash
 	^(numerator hash / denominator hash) hash! !
 
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:29:14'!
 * aMultiplier 
 	
-	^(numerator * aMultiplier numerator) / (denominator * aMultiplier denominator)
+	^aMultiplier multiplicatePorFraccion: self.
 	! !
 
 !Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/16/2018 21:13:29'!
@@ -387,10 +405,10 @@ hash
 	
 	^newNumerator / newDenominator ! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:57:14'!
 / aDivisor 
 	
-	^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)! !
+	^aDivisor dividirAFraccion: self.! !
 
 
 !Fraccion methodsFor: 'accessing' stamp: 'HernanWilkinson 5/7/2016 21:56'!
@@ -402,6 +420,27 @@ denominator
 numerator
 
 	^ numerator! !
+
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:44:41'!
+dividirAEntero: anEntero 
+	^(self denominator / self numerator) * anEntero! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:58:25'!
+dividirAFraccion: unaFraccion
+	^unaFraccion * (self denominator / self numerator).! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:34:06'!
+multiplicatePorEntero: unEntero
+	^(unEntero * self numerator ) / self denominator.! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:32:28'!
+multiplicatePorFraccion: unaFraccion 
+	^(self numerator * unaFraccion  numerator) / (self denominator * unaFraccion denominator)! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:05:39'!
+self
+	self shouldBeImplemented.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
