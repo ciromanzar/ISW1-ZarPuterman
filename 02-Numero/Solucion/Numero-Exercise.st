@@ -329,6 +329,10 @@ dividirAFraccion: aFraccion
 multiplicatePorFraccion: aFraccion 
 	^aFraccion multiplicatePorEntero: self.! !
 
+!Entero methodsFor: 'as yet unclassified' stamp: 'CZ 4/20/2018 00:13:06'!
+sumateConFraccion: unaFraccion 
+	^unaFraccion sumateConEntero: self.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: #'Numero-Exercise'!
@@ -394,16 +398,9 @@ hash
 	^aMultiplier multiplicatePorFraccion: self.
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/16/2018 21:13:29'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/20/2018 00:04:55'!
 + anAdder 
-	
-	| newNumerator newDenominator |
-	(anAdder isKindOf:  Entero) ifTrue: [^anAdder + self].
-	
-	newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
-	newDenominator := denominator * anAdder denominator.
-	
-	^newNumerator / newDenominator ! !
+	^anAdder sumateConFraccion: self.! !
 
 !Fraccion methodsFor: 'arithmetic operations' stamp: 'CZ 4/19/2018 18:57:14'!
 / aDivisor 
@@ -441,6 +438,10 @@ multiplicatePorFraccion: unaFraccion
 !Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/19/2018 18:05:39'!
 self
 	self shouldBeImplemented.! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'CZ 4/20/2018 00:12:10'!
+sumateConFraccion: unaFraccion 
+	^((self numerator * unaFraccion denominator) + (unaFraccion numerator  * self denominator)) / (self denominator * unaFraccion denominator ).! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
