@@ -180,10 +180,10 @@ test14AccountKnowsItsTransactions
 	self assert: (account1 transactions includes: deposit1).
 ! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 9/18/2011 17:27'!
+!PortfolioTest methodsFor: 'tests' stamp: 'CZ 5/7/2018 21:40:52'!
 test15PortfolioTransactionsIsTheUnionOftsAccountsTransactions 
 
-	| account1 account2 account3 complexPortfolio account composedPortfolio deposit1 deposit2 deposit3 |
+	| account1 account2 account3 complexPortfolio composedPortfolio deposit1 deposit2 deposit3 |
 	
 	account1 := ReceptiveAccount new.
 	account2 := ReceptiveAccount new.
@@ -195,7 +195,7 @@ test15PortfolioTransactionsIsTheUnionOftsAccountsTransactions
 	deposit2 := Deposit register: 200 on: account2.
 	deposit3 := Deposit register: 300 on: account3.
 		
-	self assert: 3 = composedPortfolio transactions size .
+	self assert: 3 = composedPortfolio transactions size.
 	self assert: (composedPortfolio transactions includes: deposit1).
 	self assert: (composedPortfolio transactions includes: deposit2).
 	self assert: (composedPortfolio transactions includes: deposit3).
@@ -237,7 +237,7 @@ test17PortfolioKnowsItsPortfoliosTransactions
 	self assert: ((composedPortfolio transactionsOf:complexPortfolio) includes:deposit2).
 ! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 9/18/2011 17:27'!
+!PortfolioTest methodsFor: 'tests' stamp: 'CZ 5/7/2018 21:42:29'!
 test18PortfolioCanNotAnswerTransactionsOfNotManagedAccounts 
 
 	| account1 account2 account3 complexPortfolio |
@@ -246,7 +246,7 @@ test18PortfolioCanNotAnswerTransactionsOfNotManagedAccounts
 	account2 := ReceptiveAccount new.
 	account3 := ReceptiveAccount new.
 	complexPortfolio := Portfolio with: account1 with: account2.
-		
+			
 	self 
 		should: [ complexPortfolio transactionsOf: account3 ] 
 		raise: Error 
@@ -254,7 +254,7 @@ test18PortfolioCanNotAnswerTransactionsOfNotManagedAccounts
 			self assert: Portfolio accountNotManagedMessageDescription = accountNotManaged messageText ]
 ! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 9/18/2011 17:27'!
+!PortfolioTest methodsFor: 'tests' stamp: 'CZ 5/7/2018 21:57:40'!
 test19CanNotCreatePortfoliosWithRepeatedAccount 
 
 	| account1 |
@@ -403,38 +403,58 @@ balance
 
 !classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
 SummarizingAccount subclass: #Portfolio
-	instanceVariableNames: ''
+	instanceVariableNames: 'accounts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Portfolio methodsFor: 'balance' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'balance' stamp: 'lp 5/7/2018 17:31:30'!
 balance
 
-	self shouldBeImplemented ! !
+	^ accounts inject: 0 into: [:acum  :elem | acum + elem balance ] ! !
 
 
-!Portfolio methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'testing' stamp: 'lp 5/7/2018 18:11:58'!
 manages: anAccount
 
-		self shouldBeImplemented 
+		^ (accounts includes: anAccount) or: (accounts inject: false into: [:acum :elem | acum or: (elem manages: anAccount)]).
 ! !
 
-!Portfolio methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'testing' stamp: 'lp 5/7/2018 18:06:30'!
 registers: aTtransaction
 
-	self shouldBeImplemented ! !
+	^ accounts inject: false into: [:acum :elem | acum or: (elem registers: aTtransaction)].! !
 
 
-!Portfolio methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 21:54:49'!
+includesAccount: aPortfolio 
+
+	^(accounts size = 0) ifTrue: [false] ifFalse: [accounts inject: false into: [:acum :elem| (acum or:  elem = aPortfolio) or: (elem includesAccount: aPortfolio)] ]! !
+
+!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 20:46:25'!
 transactions 
 
-	self shouldBeImplemented ! !
+	"^ accounts inject: OrderedCollection new into: [:acum :elem | acum addAllLast: elem transactions]"
+	
+	|acum|
+	acum := OrderedCollection  new.
+	accounts do: 	[:elem | acum addAllLast: elem transactions].
+	^acum.! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:40'!
-transactionsOf: anAccount 
+!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 21:42:16'!
+transactionsOf: aPortfolio 
 
-	self shouldBeImplemented ! !
+	 (self includesAccount: aPortfolio) ifTrue: [^aPortfolio transactions ] ifFalse: [self error: self class accountNotManagedMessageDescription]! !
+
+
+!Portfolio methodsFor: 'initialize' stamp: 'CZ 5/7/2018 21:57:27'!
+addAccount: anAccount
+	(self includesAccount: anAccount) ifTrue: [self error: self class accountAlreadyManagedErrorMessage ]ifFalse: [accounts addLast: anAccount]! !
+
+!Portfolio methodsFor: 'initialize' stamp: 'CZ 5/7/2018 21:56:05'!
+initializeWithAccounts: aCollectionOfAccounts
+	accounts := OrderedCollection  new.
+	aCollectionOfAccounts do: [:elem | self addAccount: elem].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -442,15 +462,26 @@ transactionsOf: anAccount
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:41'!
+!Portfolio class methodsFor: 'error' stamp: 'CZ 5/7/2018 21:51:24'!
+accountAlreadyManagedErrorMessage
+
+	^ 'Cuenta ya manejada'! !
+
+!Portfolio class methodsFor: 'error' stamp: 'lp 5/7/2018 19:44:57'!
+accountNotManagedMessageDescription
+
+	^ 'Cuenta no manejada'! !
+
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'lp 5/7/2018 17:33:39'!
 with: anAccount1 with: anAccount2
 
-	self shouldBeImplemented ! !
+	^ self new initializeWithAccounts: (Array with: anAccount1 with: anAccount2).! !
 
-!Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:41'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'lp 5/7/2018 17:33:54'!
 withAll: aCollectionOfAccounts
 
-	self shouldBeImplemented ! !
+	^ self new initializeWithAccounts: aCollectionOfAccounts .! !
 
 
 !classDefinition: #ReceptiveAccount category: #'Portfolio-Ejercicio'!
@@ -466,6 +497,10 @@ initialize
 	super initialize.
 	transactions := OrderedCollection new.! !
 
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/7/2018 21:30:35'!
+includesAccount: anAccount
+	^ self = anAccount .! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
