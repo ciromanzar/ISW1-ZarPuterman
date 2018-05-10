@@ -408,53 +408,44 @@ SummarizingAccount subclass: #Portfolio
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Portfolio methodsFor: 'balance' stamp: 'lp 5/7/2018 17:31:30'!
+!Portfolio methodsFor: 'balance' stamp: 'lp 5/10/2018 11:02:13'!
 balance
 
-	^ accounts inject: 0 into: [:acum  :elem | acum + elem balance ] ! !
+	^ accounts inject: 0 into: [:subTotalBalance  :anAccount | subTotalBalance + anAccount balance ] ! !
 
 
-!Portfolio methodsFor: 'testing' stamp: 'lp 5/7/2018 18:11:58'!
+!Portfolio methodsFor: 'testing' stamp: 'lp 5/10/2018 11:03:51'!
 manages: anAccount
 
-		^ (accounts includes: anAccount) or: (accounts inject: false into: [:acum :elem | acum or: (elem manages: anAccount)]).
+		^ (accounts includes: anAccount) or: (accounts inject: false into: [:isManaged :account | isManaged or: (account manages: anAccount)]).
 ! !
 
-!Portfolio methodsFor: 'testing' stamp: 'lp 5/7/2018 18:06:30'!
+!Portfolio methodsFor: 'testing' stamp: 'lp 5/10/2018 11:04:21'!
 registers: aTtransaction
 
-	^ accounts inject: false into: [:acum :elem | acum or: (elem registers: aTtransaction)].! !
+	^ accounts inject: false into: [:isRegistered :anAccount | isRegistered or: (anAccount registers: aTtransaction)].! !
 
 
-!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 21:54:49'!
-includesAccount: aPortfolio 
-
-	^(accounts size = 0) ifTrue: [false] ifFalse: [accounts inject: false into: [:acum :elem| (acum or:  elem = aPortfolio) or: (elem includesAccount: aPortfolio)] ]! !
-
-!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 20:46:25'!
+!Portfolio methodsFor: 'transactions' stamp: 'lp 5/10/2018 11:00:31'!
 transactions 
 
-	"^ accounts inject: OrderedCollection new into: [:acum :elem | acum addAllLast: elem transactions]"
-	
-	|acum|
-	acum := OrderedCollection  new.
-	accounts do: 	[:elem | acum addAllLast: elem transactions].
-	^acum.! !
+	^ accounts inject: (OrderedCollection new) into: [ :allTransactions :anAccount | allTransactions union: (self transactionsOf: anAccount) ]
+! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/7/2018 21:42:16'!
+!Portfolio methodsFor: 'transactions' stamp: 'lp 5/10/2018 10:37:37'!
 transactionsOf: aPortfolio 
 
-	 (self includesAccount: aPortfolio) ifTrue: [^aPortfolio transactions ] ifFalse: [self error: self class accountNotManagedMessageDescription]! !
+	 (self manages: aPortfolio) ifTrue: [^aPortfolio transactions ] ifFalse: [self error: self class accountNotManagedMessageDescription]! !
 
 
-!Portfolio methodsFor: 'initialize' stamp: 'CZ 5/7/2018 21:57:27'!
+!Portfolio methodsFor: 'initialize' stamp: 'lp 5/10/2018 10:39:44'!
 addAccount: anAccount
-	(self includesAccount: anAccount) ifTrue: [self error: self class accountAlreadyManagedErrorMessage ]ifFalse: [accounts addLast: anAccount]! !
+	(self manages: anAccount) ifTrue: [self error: self class accountAlreadyManagedErrorMessage ]ifFalse: [accounts addLast: anAccount]! !
 
-!Portfolio methodsFor: 'initialize' stamp: 'CZ 5/7/2018 21:56:05'!
+!Portfolio methodsFor: 'initialize' stamp: 'lp 5/10/2018 11:02:30'!
 initializeWithAccounts: aCollectionOfAccounts
 	accounts := OrderedCollection  new.
-	aCollectionOfAccounts do: [:elem | self addAccount: elem].! !
+	aCollectionOfAccounts do: [:anAccount | self addAccount: anAccount].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
