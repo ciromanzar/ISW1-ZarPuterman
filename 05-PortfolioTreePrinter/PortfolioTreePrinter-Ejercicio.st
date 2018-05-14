@@ -301,6 +301,23 @@ test20CanNotCreatePortfoliosWithAccountsManagedByOtherManagedPortfolio
 		withExceptionDo: [ :invalidPortfolio |
 			self assert: Portfolio accountAlreadyManagedErrorMessage = invalidPortfolio messageText ]! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'CZ 5/14/2018 02:58:48'!
+test20_01CanNotCreatePortfoliosWithAccountsManagedByOtherManagedPortfolioTwo
+
+    | account1 account2 account3 complexPortfolio1 complexPortfolio2 |
+    
+    account1 := ReceptiveAccount new.
+    account2 := ReceptiveAccount new.
+    account3 := ReceptiveAccount new.    
+    complexPortfolio1 := Portfolio with: account1 with: account2.
+    complexPortfolio2 := Portfolio with: account3 with: account1.
+
+    self 
+        should: [ Portfolio with: complexPortfolio1 with: complexPortfolio2 ]
+        raise: Error
+        withExceptionDo: [ :invalidPortfolio |
+            self assert: Portfolio accountAlreadyManagedErrorMessage = invalidPortfolio messageText ] ! !
+
 !PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 7/14/2011 05:27'!
 test21TransferShouldWithdrawFromFromAccountAndDepositIntoToAccount
 
@@ -645,9 +662,9 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'print' stamp: 'lp 5/11/2018 01:33:50'!
+!Deposit methodsFor: 'print' stamp: 'CZ 5/14/2018 02:45:58'!
 toString
-	^ 'Deposito por ' , (self affectBalance: 0) printString.! !
+	^ 'Deposito por ' , self value printString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -827,6 +844,11 @@ SummarizingAccount subclass: #Portfolio
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
+!Portfolio methodsFor: 'testing' stamp: 'CZ 5/14/2018 02:59:10'!
+anyManagedAccountManages: anAccount 
+
+	^accounts anySatisfy: [ :managedAccount | (managedAccount anyManagedAccountManages: anAccount) or: [ anAccount anyManagedAccountManages: managedAccount ] ] ! !
+
 !Portfolio methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 19:22'!
 manages: anAccount
 
@@ -877,7 +899,7 @@ with: anAccount1 with: anAccount2
 
 	^ self withAll: (Array with: anAccount1 with: anAccount2 )! !
 
-!Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 19:40'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'CZ 5/14/2018 02:54:22'!
 withAll: aCollectionOfAccounts
 
 	aCollectionOfAccounts asSet size = aCollectionOfAccounts size ifFalse: [ self error: self accountAlreadyManagedErrorMessage  ].
@@ -885,7 +907,7 @@ withAll: aCollectionOfAccounts
 	aCollectionOfAccounts do: [ :sourceAccount | 
 		aCollectionOfAccounts do: [ :targetAccount | 
 			(sourceAccount = targetAccount) not ifTrue: [
-				(sourceAccount manages: targetAccount) ifTrue: [ self error: self accountAlreadyManagedErrorMessage ]]]].
+				(sourceAccount anyManagedAccountManages: targetAccount) ifTrue: [ self error: self accountAlreadyManagedErrorMessage ]]]].
 	
 	^self new initializeWithAll: aCollectionOfAccounts ! !
 
@@ -957,10 +979,10 @@ transactions
 	^ transactions copy! !
 
 
-!ReceptiveAccount methodsFor: 'print' stamp: 'lp 5/11/2018 01:40:03'!
-accountSummary
-  ^  transactions collect:  [ :transaction | transaction toString]! !
+!ReceptiveAccount methodsFor: 'testing' stamp: 'CZ 5/14/2018 02:58:16'!
+anyManagedAccountManages: anAccount 
 
+	^(self manages: anAccount) or: [ anAccount manages: self ]! !
 
 !ReceptiveAccount methodsFor: 'testing' stamp: 'lp 5/11/2018 02:12:12'!
 investments
@@ -981,6 +1003,11 @@ registers: aTtransaction
 !ReceptiveAccount methodsFor: 'testing' stamp: 'lp 5/11/2018 02:12:54'!
 transfers
 	 ^ self transactions select: [:aTransaction | (aTransaction isKindOf: TransferDeposit) or: (aTransaction isKindOf: TransferWithdraw ) ]! !
+
+
+!ReceptiveAccount methodsFor: 'print' stamp: 'lp 5/11/2018 01:40:03'!
+accountSummary
+  ^  transactions collect:  [ :transaction | transaction toString]! !
 
 
 !classDefinition: #Transfer category: #'PortfolioTreePrinter-Ejercicio'!
