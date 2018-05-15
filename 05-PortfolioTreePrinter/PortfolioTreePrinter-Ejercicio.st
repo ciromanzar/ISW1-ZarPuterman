@@ -534,6 +534,15 @@ value
 
 	self subclassResponsibility ! !
 
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'lp 5/15/2018 18:10:20'!
+affectInvestmentEarning: anEarning
+  ^ anEarning.! !
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'lp 5/15/2018 18:10:27'!
+affectInvestmentNet: aNetValue
+	^ aNetValue.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'AccountTransaction class' category: #'PortfolioTreePrinter-Ejercicio'!
@@ -562,6 +571,14 @@ AccountTransaction subclass: #CertificateOfDeposit
 affectBalance: aValue
 	^ aValue - self value.! !
 
+!CertificateOfDeposit methodsFor: 'nil' stamp: 'lp 5/15/2018 18:09:46'!
+affectInvestmentEarning: anEarning
+  ^ anEarning + self earning .! !
+
+
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'lp 5/15/2018 18:10:03'!
+affectInvestmentNet: aNetValue
+	^ aNetValue + self value.! !
 
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'CZ 5/14/2018 22:32:38'!
 earning
@@ -705,7 +722,6 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-
 !Withdraw methodsFor: 'value' stamp: 'CZ 5/14/2018 23:36:29'!
 affectBalance: aValue
 	^ aValue - self value.! !
@@ -835,11 +851,9 @@ value
 	account x: self.
 	^ earning.! !
 
-!InvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 02:10:01'!
+!InvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'lp 5/15/2018 18:11:02'!
 valueOf: aTransaction
-	earning _ (aTransaction isKindOf: CertificateOfDeposit)
-		ifTrue: [ earning + aTransaction earning ]
-		ifFalse: [ earning ].! !
+	earning _ aTransaction affectInvestmentEarning: earning.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -869,11 +883,9 @@ value
 	account x: self.
 	^ net.! !
 
-!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 02:10:01'!
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'lp 5/15/2018 18:10:55'!
 valueOf: aTransaction
-	net _ (aTransaction isKindOf: CertificateOfDeposit)
-		ifTrue: [ net + aTransaction value ]
-		ifFalse: [ net ].! !
+	net _ aTransaction affectInvestmentNet: net.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
