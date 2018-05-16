@@ -503,15 +503,17 @@ investmentEarningsOf: aReceptiveAccount
 investmentNetOf: aReceptiveAccount
 	^ (InvestmentNet of: aReceptiveAccount) value.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'CZ 5/15/2018 01:37:24'!
-portofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
-	
-	^ (PortfolioTree of: aPortfolio  with: aDictionary ) value.! !
+!PortfolioTest methodsFor: 'test support' stamp: 'CZ 5/16/2018 18:43:00'!
+portofolioTreeOf: aPortfolio namingAccountWith: aDictionary
+	^ (PrintPortfolioTree
+		of: aPortfolio
+		with: aDictionary) value.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'HernanWilkinson 9/6/2016 19:43'!
+!PortfolioTest methodsFor: 'test support' stamp: 'CZ 5/16/2018 18:44:11'!
 reversePortofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
-	
-	self shouldBeImplemented ! !
+	 ^(PrintReversePortfolioTree
+		of: aPortfolio
+		with: aDictionary) value.! !
 
 
 !classDefinition: #AccountTransaction category: #'PortfolioTreePrinter-Ejercicio'!
@@ -898,36 +900,82 @@ of: anAccount
 	^ self new initializeOf: anAccount.! !
 
 
-!classDefinition: #PortfolioTree category: #'PortfolioTreePrinter-Ejercicio'!
-Query subclass: #PortfolioTree
+!classDefinition: #PrintPortfolioTree category: #'PortfolioTreePrinter-Ejercicio'!
+Query subclass: #PrintPortfolioTree
 	instanceVariableNames: 'lines dictionary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:26:35'!
+!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:26:35'!
 initializeOf: anAccount with: aDictionary
 	account _ anAccount .
 	lines _ OrderedCollection new.
 	dictionary := aDictionary .! !
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 02:33:15'!
+!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:46:58'!
 value
-	self valueOf: account .
-	account x: self.
+	self valueOf: account withAux: 0.
+	account x: self withAux: 1.
 	^ lines.! !
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 02:10:01'!
-valueOf: anAccount
-	((anAccount isKindOf: Portfolio) or: (anAccount isKindOf: ReceptiveAccount)) ifTrue: [ lines add: (dictionary at: anAccount) ].! !
+!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:39:40'!
+valueOf: anAccount withAux: aux
+	|blankSpaces|
+	blankSpaces  := ''.
+	1 to: aux do: [:x |blankSpaces := ' ' , blankSpaces].
+
+	((anAccount isKindOf: Portfolio) or: (anAccount isKindOf: ReceptiveAccount)) ifTrue: [ lines add: (blankSpaces  , (dictionary at: anAccount) )].
+	
+ ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'PortfolioTree class' category: #'PortfolioTreePrinter-Ejercicio'!
-PortfolioTree class
+!classDefinition: 'PrintPortfolioTree class' category: #'PortfolioTreePrinter-Ejercicio'!
+PrintPortfolioTree class
 	instanceVariableNames: ''!
 
-!PortfolioTree class methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:37:36'!
+!PrintPortfolioTree class methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:37:36'!
+of: aPortfolio with: aDictionary
+	^ self new initializeOf: aPortfolio with: aDictionary.! !
+
+
+!classDefinition: #PrintReversePortfolioTree category: #'PortfolioTreePrinter-Ejercicio'!
+Query subclass: #PrintReversePortfolioTree
+	instanceVariableNames: 'lines dictionary'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:44:50'!
+initializeOf: anAccount with: aDictionary
+	account _ anAccount .
+	lines _ OrderedCollection new.
+	dictionary := aDictionary .! !
+
+!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:47:08'!
+value
+	self valueOf: account withAux: 0.
+	account x: self withAux: 1.
+	^ lines.! !
+
+!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:45:41'!
+valueOf: anAccount withAux: aux
+	|blankSpaces|
+	blankSpaces  := ''.
+	1 to: aux do: [:x |blankSpaces := ' ' , blankSpaces].
+
+	((anAccount isKindOf: Portfolio) or: (anAccount isKindOf: ReceptiveAccount)) ifTrue: [ lines addFirst: (blankSpaces  , (dictionary at: anAccount) )].
+	
+ ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrintReversePortfolioTree class' category: #'PortfolioTreePrinter-Ejercicio'!
+PrintReversePortfolioTree class
+	instanceVariableNames: ''!
+
+!PrintReversePortfolioTree class methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:46:03'!
 of: aPortfolio with: aDictionary
 	^ self new initializeOf: aPortfolio with: aDictionary.! !
 
@@ -1020,6 +1068,10 @@ registers: aTransaction
 	^ accounts anySatisfy: [ :anAccount | anAccount registers: aTransaction ]  ! !
 
 
+!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/16/2018 17:12:24'!
+accountsDo: aBlock
+	accounts do: aBlock.! !
+
 !Portfolio methodsFor: 'transactions' stamp: 'HAW 8/13/2017 17:47:44'!
 balance
 
@@ -1047,6 +1099,12 @@ x: aQuery
 	accounts do: [ :anAccount |
 		aQuery  valueOf: anAccount .
 		anAccount x: aQuery ].! !
+
+!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/16/2018 18:17:11'!
+x: aQuery withAux: aux
+	accounts do: [ :anAccount |
+		aQuery  valueOf: anAccount withAux: aux.
+		anAccount x: aQuery withAux: aux + 1 ].! !
 
 
 !Portfolio methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 19:19'!
@@ -1141,6 +1199,10 @@ transactions
 
 	^ transactions copy! !
 
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/16/2018 17:06:18'!
+transactionsDo: aBlock
+	transactions do: aBlock.! !
+
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/14/2018 22:59:22'!
 transfers
 	^ self transactions select: [ :aTransaction |
@@ -1148,6 +1210,11 @@ transfers
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/15/2018 02:14:55'!
 x: aQuery
+	transactions do: [ :aTransaction |
+		aQuery valueOf: aTransaction ].! !
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/16/2018 18:16:26'!
+x: aQuery withAux: aux
 	transactions do: [ :aTransaction |
 		aQuery valueOf: aTransaction ].! !
 
