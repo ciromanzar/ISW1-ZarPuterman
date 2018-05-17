@@ -524,10 +524,6 @@ Object subclass: #AccountTransaction
 affectBalance: aValue
 	self subclassResponsibility.! !
 
-!AccountTransaction methodsFor: 'evaluating' stamp: 'CZ 5/14/2018 22:30:48'!
-toString
-	self subclassResponsibility.! !
-
 !AccountTransaction methodsFor: 'evaluating' stamp: 'HernanWilkinson 7/14/2011 06:48'!
 value
 
@@ -592,10 +588,6 @@ value
 	^ value.! !
 
 
-!CertificateOfDeposit methodsFor: 'print' stamp: 'CZ 5/14/2018 22:35:47'!
-toString
-	^ 'Plazo fijo por ' , self value printString , ' durante ' , self numberOfDays printString , ' dias a una tna de ' , (self tna * 100) printString , '%'.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'CertificateOfDeposit class' category: #'PortfolioTreePrinter-Ejercicio'!
@@ -634,10 +626,6 @@ initializeFor: aValue
 
 	value := aValue ! !
 
-
-!Deposit methodsFor: 'value' stamp: 'CZ 5/14/2018 22:42:00'!
-toString
-	^ 'Deposito por ' , self value printString.! !
 
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
@@ -691,10 +679,6 @@ initializeAssociatedWith: aTransfer
 	value _ aTransfer value.
 	transfer _ aTransfer .! !
 
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'CZ 5/14/2018 23:34:32'!
-toString
-	^ 'Transferencia por ' , (self affectBalance: 0) printString.! !
-
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'CZ 5/14/2018 23:34:23'!
 transfer
 	^ transfer.! !
@@ -728,10 +712,6 @@ affectBalance: aValue
 !Withdraw methodsFor: 'value' stamp: 'CZ 5/14/2018 23:36:56'!
 initializeFor: aValue
 	value _ aValue.! !
-
-!Withdraw methodsFor: 'value' stamp: 'CZ 5/14/2018 23:36:43'!
-toString
-	^ 'Extraccion por ' , self value printString.! !
 
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/14/2011 05:54'!
 value
@@ -780,10 +760,6 @@ initializeAssociatedWith: aTransfer
 transfer
 	^ transfer.! !
 
-
-!TransferWithdraw methodsFor: 'nil' stamp: 'CZ 5/14/2018 23:36:00'!
-toString
-	^ 'Transferencia por ' , (self affectBalance: 0) printString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -866,20 +842,16 @@ Query subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!AccountSummary methodsFor: 'nil' stamp: 'CZ 5/14/2018 22:29:56'!
+!AccountSummary methodsFor: 'initialize' stamp: 'lp 5/17/2018 15:38:06'!
 initializeOf: anAccount
 	account _ anAccount .
+	visitor _ AccountSummaryVisitor new.
 	lines _ OrderedCollection new.! !
 
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'CZ 5/14/2018 22:28:48'!
+!AccountSummary methodsFor: 'value' stamp: 'lp 5/17/2018 15:39:21'!
 value
-	account x: self.
-	^ lines.! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 02:15:08'!
-valueOf: aTransaction
-		lines add: aTransaction toString .! !
+	^account transactions inject: OrderedCollection new into: [:lines :transaction | lines addLast: (transaction accept: visitor) ;yourself]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1063,18 +1035,6 @@ transactionsOf: anAccount
 		ifFalse: [ self error: self class accountNotManagedMessageDescription]
 	! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/15/2018 02:32:54'!
-x: aQuery
-	accounts do: [ :anAccount |
-		aQuery  valueOf: anAccount .
-		anAccount x: aQuery ].! !
-
-!Portfolio methodsFor: 'transactions' stamp: 'CZ 5/16/2018 18:17:11'!
-x: aQuery withAux: aux
-	accounts do: [ :anAccount |
-		aQuery  valueOf: anAccount withAux: aux.
-		anAccount x: aQuery withAux: aux + 1 ].! !
-
 
 !Portfolio methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 19:19'!
 initializeWithAll: aCollectionOfAccounts
@@ -1182,16 +1142,6 @@ transfers
 	^ self transactions select: [ :aTransaction |
 		(aTransaction isKindOf: TransferDeposit) or: (aTransaction isKindOf: TransferWithdraw) ].! !
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/15/2018 02:14:55'!
-x: aQuery
-	transactions do: [ :aTransaction |
-		aQuery valueOf: aTransaction ].! !
-
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'CZ 5/16/2018 18:16:26'!
-x: aQuery withAux: aux
-	transactions do: [ :aTransaction |
-		aQuery valueOf: aTransaction ].! !
-
 
 !ReceptiveAccount methodsFor: 'testing' stamp: 'CZ 5/14/2018 22:56:58'!
 anyManagedAccountManages: anAccount
@@ -1246,6 +1196,34 @@ visitTransferWithdraw: aTransferWithdraw
 !TransactionVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:17:34'!
 visitWithdraw: aWithdraw
 	^ 0! !
+
+
+!classDefinition: #AccountSummaryVisitor category: #'PortfolioTreePrinter-Ejercicio'!
+TransactionVisitor subclass: #AccountSummaryVisitor
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!AccountSummaryVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:42:52'!
+visitCertificateOfDeposit: aCertificateOfDeposit
+	^ 'Plazo fijo por ' , aCertificateOfDeposit value printString , ' durante ' , aCertificateOfDeposit numberOfDays printString , ' dias a una tna de ' , (aCertificateOfDeposit tna * 100) printString , '%'.! !
+
+!AccountSummaryVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:40:13'!
+visitDeposit: aDeposit
+	^ 'Deposito por ' , aDeposit value printString.! !
+
+!AccountSummaryVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:49:10'!
+visitTransferDeposit: aTransferDeposit
+	^ 'Transferencia por ' , aTransferDeposit value printString.! !
+
+!AccountSummaryVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:49:44'!
+visitTransferWithdraw: aTransferWithdraw
+	^ 'Transferencia por -' , aTransferWithdraw value printString.! !
+
+!AccountSummaryVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 15:40:38'!
+visitWithdraw: aWithraw
+	^ 'Extraccion por ' , aWithraw value printString.! !
 
 
 !classDefinition: #InvestmentEarningsVisitor category: #'PortfolioTreePrinter-Ejercicio'!
