@@ -503,17 +503,13 @@ investmentEarningsOf: aReceptiveAccount
 investmentNetOf: aReceptiveAccount
 	^ (InvestmentNet of: aReceptiveAccount) value.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'CZ 5/16/2018 18:43:00'!
+!PortfolioTest methodsFor: 'test support' stamp: 'lp 5/17/2018 13:50:58'!
 portofolioTreeOf: aPortfolio namingAccountWith: aDictionary
-	^ (PrintPortfolioTree
-		of: aPortfolio
-		with: aDictionary) value.! !
+	^ aPortfolio accept: (PrintAccountVisitor with: aDictionary).! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'CZ 5/16/2018 18:44:11'!
+!PortfolioTest methodsFor: 'test support' stamp: 'lp 5/17/2018 13:57:13'!
 reversePortofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
-	 ^(PrintReversePortfolioTree
-		of: aPortfolio
-		with: aDictionary) value.! !
+	 ^ (aPortfolio accept: (PrintAccountVisitor with: aDictionary )) reverse! !
 
 
 !classDefinition: #AccountTransaction category: #'PortfolioTreePrinter-Ejercicio'!
@@ -795,6 +791,57 @@ associatedWith: aTransfer
 	^ self new initializeAssociatedWith: aTransfer.! !
 
 
+!classDefinition: #AccountVisitor category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #AccountVisitor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!AccountVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 13:41:01'!
+visitPortfolio: aPortfolio
+	self subclassResponsibility ! !
+
+!AccountVisitor methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 13:41:08'!
+visitReceptiveAccount: aPortfolio
+	self subclassResponsibility ! !
+
+
+!classDefinition: #PrintAccountVisitor category: #'PortfolioTreePrinter-Ejercicio'!
+AccountVisitor subclass: #PrintAccountVisitor
+	instanceVariableNames: 'dictionary'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!PrintAccountVisitor methodsFor: 'visit' stamp: 'lp 5/17/2018 13:44:26'!
+visitPortfolio: aPortfolio
+	|printAccounts|
+	printAccounts := aPortfolio accounts inject: OrderedCollection new 
+						into: [:accts :acct | accts addAll: ((acct accept: self) collect: [:stringAccount | ' ', stringAccount ]) ;yourself ].
+	printAccounts addFirst: (dictionary at: aPortfolio).
+	^printAccounts ! !
+
+!PrintAccountVisitor methodsFor: 'visit' stamp: 'lp 5/17/2018 13:42:48'!
+visitReceptiveAccount: aReceptiveAccount
+	^ OrderedCollection new add: (dictionary at: aReceptiveAccount) ;yourself ! !
+
+
+!PrintAccountVisitor methodsFor: 'initialization' stamp: 'lp 5/17/2018 13:43:29'!
+initializeWith: aDictionary
+	dictionary := aDictionary.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrintAccountVisitor class' category: #'PortfolioTreePrinter-Ejercicio'!
+PrintAccountVisitor class
+	instanceVariableNames: ''!
+
+!PrintAccountVisitor class methodsFor: 'as yet unclassified' stamp: 'lp 5/17/2018 13:56:15'!
+with: aDictionary
+	^self new initializeWith: aDictionary.! !
+
+
 !classDefinition: #Query category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #Query
 	instanceVariableNames: 'account'
@@ -900,86 +947,6 @@ of: anAccount
 	^ self new initializeOf: anAccount.! !
 
 
-!classDefinition: #PrintPortfolioTree category: #'PortfolioTreePrinter-Ejercicio'!
-Query subclass: #PrintPortfolioTree
-	instanceVariableNames: 'lines dictionary'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:26:35'!
-initializeOf: anAccount with: aDictionary
-	account _ anAccount .
-	lines _ OrderedCollection new.
-	dictionary := aDictionary .! !
-
-!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:46:58'!
-value
-	self valueOf: account withAux: 0.
-	account x: self withAux: 1.
-	^ lines.! !
-
-!PrintPortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:39:40'!
-valueOf: anAccount withAux: aux
-	|blankSpaces|
-	blankSpaces  := ''.
-	1 to: aux do: [:x |blankSpaces := ' ' , blankSpaces].
-
-	((anAccount isKindOf: Portfolio) or: (anAccount isKindOf: ReceptiveAccount)) ifTrue: [ lines add: (blankSpaces  , (dictionary at: anAccount) )].
-	
- ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'PrintPortfolioTree class' category: #'PortfolioTreePrinter-Ejercicio'!
-PrintPortfolioTree class
-	instanceVariableNames: ''!
-
-!PrintPortfolioTree class methodsFor: 'as yet unclassified' stamp: 'CZ 5/15/2018 01:37:36'!
-of: aPortfolio with: aDictionary
-	^ self new initializeOf: aPortfolio with: aDictionary.! !
-
-
-!classDefinition: #PrintReversePortfolioTree category: #'PortfolioTreePrinter-Ejercicio'!
-Query subclass: #PrintReversePortfolioTree
-	instanceVariableNames: 'lines dictionary'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:44:50'!
-initializeOf: anAccount with: aDictionary
-	account _ anAccount .
-	lines _ OrderedCollection new.
-	dictionary := aDictionary .! !
-
-!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:47:08'!
-value
-	self valueOf: account withAux: 0.
-	account x: self withAux: 1.
-	^ lines.! !
-
-!PrintReversePortfolioTree methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:45:41'!
-valueOf: anAccount withAux: aux
-	|blankSpaces|
-	blankSpaces  := ''.
-	1 to: aux do: [:x |blankSpaces := ' ' , blankSpaces].
-
-	((anAccount isKindOf: Portfolio) or: (anAccount isKindOf: ReceptiveAccount)) ifTrue: [ lines addFirst: (blankSpaces  , (dictionary at: anAccount) )].
-	
- ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'PrintReversePortfolioTree class' category: #'PortfolioTreePrinter-Ejercicio'!
-PrintReversePortfolioTree class
-	instanceVariableNames: ''!
-
-!PrintReversePortfolioTree class methodsFor: 'as yet unclassified' stamp: 'CZ 5/16/2018 18:46:03'!
-of: aPortfolio with: aDictionary
-	^ self new initializeOf: aPortfolio with: aDictionary.! !
-
-
 !classDefinition: #TransferNet category: #'PortfolioTreePrinter-Ejercicio'!
 Query subclass: #TransferNet
 	instanceVariableNames: 'net'
@@ -1043,6 +1010,11 @@ transactions
 
 	self subclassResponsibility ! !
 
+
+!SummarizingAccount methodsFor: 'accept' stamp: 'lp 5/17/2018 13:48:04'!
+accpet: aVisitor
+	self subclassResponsibility ! !
+
 
 !classDefinition: #Portfolio category: #'PortfolioTreePrinter-Ejercicio'!
 SummarizingAccount subclass: #Portfolio
@@ -1067,6 +1039,10 @@ registers: aTransaction
 
 	^ accounts anySatisfy: [ :anAccount | anAccount registers: aTransaction ]  ! !
 
+
+!Portfolio methodsFor: 'transactions' stamp: 'lp 5/17/2018 13:42:28'!
+accounts
+ ^accounts ! !
 
 !Portfolio methodsFor: 'transactions' stamp: 'CZ 5/16/2018 17:12:24'!
 accountsDo: aBlock
@@ -1111,6 +1087,11 @@ x: aQuery withAux: aux
 initializeWithAll: aCollectionOfAccounts
 
 	accounts := aCollectionOfAccounts   ! !
+
+
+!Portfolio methodsFor: 'accept' stamp: 'lp 5/17/2018 13:48:55'!
+accept: aVisitor
+	^ aVisitor visitPortfolio: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1239,6 +1220,11 @@ registers: aTtransaction
 
 	^ transactions includes: aTtransaction 
 ! !
+
+
+!ReceptiveAccount methodsFor: 'accept' stamp: 'lp 5/17/2018 13:47:27'!
+accept: aVisitor
+	^aVisitor visitReceptiveAccount: self.! !
 
 
 !classDefinition: #Transfer category: #'PortfolioTreePrinter-Ejercicio'!
