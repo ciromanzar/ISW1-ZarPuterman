@@ -1249,15 +1249,15 @@ for: aReceptiveAccount
 
 !classDefinition: #Promise category: #'PortfolioTimeConsuming-Ejercicio'!
 Object subclass: #Promise
-	instanceVariableNames: 'semaphore block'
+	instanceVariableNames: 'semaphore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTimeConsuming-Ejercicio'!
 
-!Promise methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 19:52:15'!
+!Promise methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 20:05:30'!
 initializeWith: aBlock
 	semaphore := Semaphore new.
-	block := [aBlock value. semaphore signal.] fork.! !
+	[aBlock value. semaphore signal.] fork.! !
 
 !Promise methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 19:57:02'!
 then: aBlock
