@@ -5,8 +5,8 @@ TestCase subclass: #TicTacToeTest
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 09:59:04'!
-test01
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:11:05'!
+test01gameStartsEmpty
 
 	|game|
 	
@@ -16,8 +16,8 @@ test01
 	self assert: game Os isEmpty.
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 10:20:33'!
-test02
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:11:51'!
+test02putXdoesntPutO
 
 	|game|
 	
@@ -31,8 +31,8 @@ test02
 	
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 10:50:55'!
-test03
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:13:28'!
+test03putXandThenO
 
 	|game|
 	
@@ -47,8 +47,8 @@ test03
 	self assert: (game Os includes: 2@2).
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 11:01:26'!
-test04
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:14:21'!
+test04cannotPutTwoXsInARow
 
 	|game|
 	
@@ -67,8 +67,8 @@ test04
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 11:08:58'!
-test05
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:14:11'!
+test05cannotPutTwoOsInARow
 
 	|game|
 	
@@ -88,8 +88,8 @@ test05
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 11:18:20'!
-test06
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:17:17'!
+test06XcannotReusePositionOfX
 
 	|game|
 	
@@ -109,8 +109,8 @@ test06
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 11:37:38'!
-test07
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:16:54'!
+test07XcannotReusePositionOfO
 
 	|game|
 	
@@ -130,8 +130,8 @@ test07
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 11:45:04'!
-test08
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:17:38'!
+test08OcannotReusePositionOfX
 
 	|game|
 	
@@ -150,8 +150,8 @@ test08
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:12:12'!
-test09
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:17:55'!
+test09OcannotReusePositionOfO
 
 	|game|
 	
@@ -174,8 +174,8 @@ test09
 		].
 	! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:24:06'!
-test10
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:19:42'!
+test10noOneWinsBeforeCompletingThreeMoves
 
 	|game|
 	
@@ -189,8 +189,8 @@ test10
 		self deny: game OHasWon.
 		self deny: game XHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:41:54'!
-test11
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:20:10'!
+test11XWinsAfterCompletingFirstRow
 
 	|game|
 	
@@ -206,8 +206,8 @@ test11
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:42:33'!
-test12
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:22:03'!
+test12XWinsAfterCompletingSecondRow
 
 	|game|
 	
@@ -223,8 +223,8 @@ test12
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:46:05'!
-test13
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:21:29'!
+test13XWinsAfterCompletingThirdRow
 
 	|game|
 	
@@ -240,8 +240,8 @@ test13
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:52:28'!
-test14
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:22:20'!
+test14XWinsAfterCompletingFirstColumn
 
 	|game|
 	
@@ -257,8 +257,8 @@ test14
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:03:39'!
-test15
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:23:55'!
+test15XWinsAfterCompletingLeftToRightDiagonal
 
 	|game|
 	
@@ -274,8 +274,8 @@ test15
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:04:20'!
-test16
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:23:44'!
+test16XWinsAfterCompletingRightToLeftDiagonal
 
 	|game|
 	
@@ -291,8 +291,8 @@ test16
 		self assert: game XHasWon.
 		self deny: game OHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:07:03'!
-test17
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:24:49'!
+test17OWinsAfterCompletingFirstRow
 
 	|game|
 	
@@ -308,8 +308,8 @@ test17
 		self assert: game OHasWon.
 		self deny: game XHasWon.! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:15:12'!
-test18
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:26:05'!
+test18OCannotPlayWhenXHasWon
 
 	| game |
 	
@@ -332,8 +332,8 @@ test18
 			
 			! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:22:51'!
-test19
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:26:31'!
+test19XCannotPlayWhenOHasWon
 
 	| game |
 	
@@ -358,8 +358,8 @@ test19
 			
 			! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:25:55'!
-test20
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:27:10'!
+test20GameIsTiedWhenAllPositionsAreUsedAndNoOneWon
 
 	| game |
 	
@@ -381,8 +381,8 @@ test20
 	self assert: game isTied
 ! !
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 15:10:03'!
-test21
+!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 18:28:05'!
+test21GameIsNotTiedWhenAllPositionsAreUsedAndXHasWon
 
 	| game |
 	
@@ -431,6 +431,18 @@ XHasWon
 Xs
 
 	^xs copy.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 21:05:40'!
+hasComplete: positions col: aCol
+	^(positions count: [:position | position y = aCol ]) = 3.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 21:05:29'!
+hasComplete: positions row: aRow
+	^ (positions count: [:position | position x = aRow ]) = 3.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 21:27:55'!
+hasCompleteDiagonal: positions
+	^(positions count: [:position | position x = position y]) = 3 or: ((positions count: [:position | (position x + position y) = 4]) = 3)! !
 
 !TicTacToe methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 12:51:23'!
 hasCompletedColumn: positions
@@ -518,10 +530,18 @@ putXAt: aPosition
 TicTacToe class
 	instanceVariableNames: ''!
 
+!TicTacToe class methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 21:32:14'!
+canNotPlayWhenGameIsOver
+	^'No se pueder jugar si el juego termino.'.! !
+
 !TicTacToe class methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:15:31'!
 canNotPlayWhenGameIsOverErrorMessage
 	
 	^'Can not play when game is over'! !
+
+!TicTacToe class methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 19:46:49'!
+notOTurnErrorMessage
+	^'No es el turno de O'.! !
 
 !TicTacToe class methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 10:26:38'!
 notXTurnErrorMessage
