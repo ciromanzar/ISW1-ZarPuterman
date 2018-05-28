@@ -570,16 +570,12 @@ initializeFor: aReceptiveAccount
 	
 	account := aReceptiveAccount ! !
 
-!AccountSummaryWithAllInvestmentInformation methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 7/17/2011 23:58'!
-lines 
-
-	| lines investmentEarnings |
-	
-	investmentEarnings := InvestmentNetVisitor for: account.
+!AccountSummaryWithAllInvestmentInformation methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 20:01:25'!
+lines	
+	| lines investmentEarnings promise|
+	promise := Promise resolve: [investmentEarnings := (InvestmentNetVisitor for: account) value].
 	lines := (AccountSummaryWithInvestmentEarnings for: account) lines.
-	lines add: 'Inversiones por ', investmentEarnings value printString.
-	
-	 ^ lines! !
+	promise then:  [lines add: 'Inversiones por ', investmentEarnings printString.  ^ lines]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -605,16 +601,14 @@ initializeFor: aReceptiveAccount
 	
 	account := aReceptiveAccount ! !
 
-!AccountSummaryWithInvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 7/17/2011 23:53'!
+!AccountSummaryWithInvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 19:56:45'!
 lines 
-
-	| lines investmentEarnings |
-	
-	investmentEarnings := InvestmentEarningVisitor for: account.
+	| lines investmentEarnings promise|
+	promise := Promise resolve: [investmentEarnings := (InvestmentEarningVisitor for: account) value].
 	lines := (AccountSummary for: account) lines.
-	lines add: 'Ganancias por ', investmentEarnings value printString.
+	promise then: [lines add: 'Ganancias por ', investmentEarnings printString.^ lines]
 	
-	 ^ lines! !
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1251,6 +1245,34 @@ InvestmentNetVisitor class
 for: aReceptiveAccount 
 	
 	^ self new initializeFor: aReceptiveAccount ! !
+
+
+!classDefinition: #Promise category: #'PortfolioTimeConsuming-Ejercicio'!
+Object subclass: #Promise
+	instanceVariableNames: 'semaphore'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTimeConsuming-Ejercicio'!
+
+!Promise methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 20:05:30'!
+initializeWith: aBlock
+	semaphore := Semaphore new.
+	[aBlock value. semaphore signal.] fork.! !
+
+!Promise methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 19:57:02'!
+then: aBlock
+	semaphore wait.
+	aBlock value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Promise class' category: #'PortfolioTimeConsuming-Ejercicio'!
+Promise class
+	instanceVariableNames: ''!
+
+!Promise class methodsFor: 'as yet unclassified' stamp: 'lp 5/21/2018 19:59:37'!
+resolve: aBlock
+	^ self new initializeWith: aBlock.! !
 
 
 !classDefinition: #SummarizingAccount category: #'PortfolioTimeConsuming-Ejercicio'!
