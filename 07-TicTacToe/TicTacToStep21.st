@@ -412,14 +412,6 @@ Object subclass: #State
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
 
-!State methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:16:07'!
-canPutO
-	self subclassResponsibility .! !
-
-!State methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:16:14'!
-canPutX
-	self subclassResponsibility .! !
-
 !State methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 19:31:15'!
 hasOWon
 	self subclassResponsibility .! !
@@ -436,6 +428,14 @@ isGameOver
 isTie
 	self subclassResponsibility .! !
 
+!State methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:53:31'!
+putOin: game at: aPosition.
+	^ self subclassResponsibility .! !
+
+!State methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:53:27'!
+putXin: game at: aPosition.
+	^ self subclassResponsibility .! !
+
 
 !classDefinition: #GameOver category: #TicTacToStep21!
 State subclass: #GameOver
@@ -443,14 +443,6 @@ State subclass: #GameOver
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
-
-!GameOver methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:16:35'!
-canPutO
-	^ self error: TicTacToe canNotPlayWhenGameIsOverErrorMessage .! !
-
-!GameOver methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:16:45'!
-canPutX
-	^ self error: TicTacToe canNotPlayWhenGameIsOverErrorMessage .! !
 
 !GameOver methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 19:49:36'!
 hasOWon
@@ -472,6 +464,14 @@ isGameOver
 isTie
 	^value=#tie.! !
 
+!GameOver methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:40:41'!
+putOin: game at: aPosition.
+	^ self error: TicTacToe canNotPlayWhenGameIsOverErrorMessage .! !
+
+!GameOver methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:48:55'!
+putXin: game at: aPosition.
+	^ self error: TicTacToe canNotPlayWhenGameIsOverErrorMessage .! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'GameOver class' category: #TicTacToStep21!
@@ -490,14 +490,6 @@ State subclass: #PlayerTurn
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
 
-!PlayerTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:17:29'!
-canPutO
-	^ self subclassResponsibility .! !
-
-!PlayerTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:17:38'!
-canPutX
-	^ self subclassResponsibility .! !
-
 !PlayerTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:26:59'!
 hasOWon
 	^false.! !
@@ -514,6 +506,14 @@ isGameOver
 isTie
 	^false.! !
 
+!PlayerTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:40:32'!
+putOin: game at: aPosition.
+	^ self subclassResponsibility .! !
+
+!PlayerTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:48:19'!
+putXin: game at: aPosition.
+	^ self subclassResponsibility .! !
+
 
 !classDefinition: #PlayerOTurn category: #TicTacToStep21!
 PlayerTurn subclass: #PlayerOTurn
@@ -522,12 +522,13 @@ PlayerTurn subclass: #PlayerOTurn
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
 
-!PlayerOTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:16:56'!
-canPutO
-	! !
+!PlayerOTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:39:32'!
+putOin: game at: aPosition.
+	game validateAndAddOto: aPosition.! !
 
-!PlayerOTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:22:35'!
-canPutX
+!PlayerOTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:47:39'!
+putXin: game at: aPosition.
+	
 	^ self error: TicTacToe notXTurnErrorMessage .! !
 
 
@@ -538,12 +539,13 @@ PlayerTurn subclass: #PlayerXTurn
 	poolDictionaries: ''
 	category: 'TicTacToStep21'!
 
-!PlayerXTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:22:26'!
-canPutO
+!PlayerXTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:40:20'!
+putOin: game at: aPosition.
 	^ self error: TicTacToe notOTurnErrorMessage ! !
 
-!PlayerXTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 20:18:19'!
-canPutX! !
+!PlayerXTurn methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:48:08'!
+putXin: game at: aPosition.
+	game validateAndAddXto: aPosition.! !
 
 
 !classDefinition: #TicTacToe category: #TicTacToStep21!
@@ -648,20 +650,17 @@ isTied
 	
 	^state isTie.! !
 
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 21:07:14'!
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:34:26'!
 putOAt: aPosition
 	
-	state canPutO.
-	self validate: aPosition thenAddTo: os andUpdateTo: PlayerXTurn new.
+	state putOin: self at: aPosition.
 
 ! !
 
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 21:07:20'!
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:46:39'!
 putXAt: aPosition
 	
-	state canPutX.
-
-	self validate: aPosition thenAddTo: xs andUpdateTo: PlayerOTurn new.
+	state putXin: self at: aPosition.
 ! !
 
 !TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/28/2018 21:02:55'!
@@ -671,11 +670,25 @@ validate: aPosition thenAddTo: aPlayersPositions andUpdateTo: aState
 	self checkIfGameIsOverOrUpdateTo: aState.
 ! !
 
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:39:19'!
+validateAndAddOto: aPosition
+	self validate: aPosition thenAddTo: os andUpdateTo: PlayerXTurn new
+	! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'CZ 5/30/2018 17:48:36'!
+validateAndAddXto: aPosition
+	self validate: aPosition thenAddTo: xs andUpdateTo: PlayerOTurn new
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TicTacToe class' category: #TicTacToStep21!
 TicTacToe class
 	instanceVariableNames: ''!
+
+!TicTacToe class methodsFor: 'as yet unclassified' stamp: 'CZ 5/24/2018 21:32:14'!
+canNotPlayWhenGameIsOver
+	^'No se pueder jugar si el juego termino.'.! !
 
 !TicTacToe class methodsFor: 'as yet unclassified' stamp: 'jg 5/22/2018 13:15:31'!
 canNotPlayWhenGameIsOverErrorMessage
