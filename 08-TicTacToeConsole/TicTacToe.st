@@ -5,52 +5,67 @@ TestCase subclass: #TicTacToeConsoleTest
 	poolDictionaries: ''
 	category: 'TicTacToe'!
 
-!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 5/31/2018 20:18:34'!
-assertPrintsOAt: aPosition inMove: aMoveNumber
-	self assert: (console lines at: aMoveNumber*2 - 1) = ('O marcó en ', aPosition printString).
-	self assert: (console lines at: aMoveNumber*2) =  'Estado: Jugando X'.! !
+!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 6/3/2018 17:49:39'!
+assert: lines PrintsOAt: aPosition inMove: aMoveNumber
+	self assert: (lines at: aMoveNumber*2 - 1) = ('O marcó en ', aPosition printString).
+	self assert: (lines at: aMoveNumber*2) =  'Estado: Jugando X'.! !
 
-!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 5/31/2018 20:23:04'!
-assertPrintsOWinsAt: aPosition inMove: aMoveNumber
-	self assert: (console lines at: aMoveNumber*2 - 1) = ('O marcó en ', aPosition printString).
-	self assert: (console lines at: aMoveNumber*2) =  'Estado: Juego terminado - Ganó O!!'.! !
+!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 6/3/2018 17:49:58'!
+assert: lines PrintsOWinsAt: aPosition inMove: aMoveNumber
+	self assert: (lines at: aMoveNumber*2 - 1) = ('O marcó en ', aPosition printString).
+	self assert: (lines at: aMoveNumber*2) =  'Estado: Juego terminado - Ganó O!!'.! !
 
-!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 5/31/2018 20:18:44'!
-assertPrintsXAt: aPosition inMove: aMoveNumber
-	self assert: (console lines at: aMoveNumber*2 - 1) = ('X marcó en ', aPosition printString).
-	self assert: (console lines at: aMoveNumber*2) =  'Estado: Jugando O'.! !
+!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 6/3/2018 18:02:30'!
+assert: lines PrintsTieAt: aPosition inMove: aMoveNumber
+	self assert: (lines at: aMoveNumber*2 - 1) = ('X marcó en ', aPosition printString).
+	self assert: (lines at: aMoveNumber*2) =  'Estado: Juego terminado - Empate!!'.! !
 
-!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 5/31/2018 20:22:56'!
-assertPrintsXWinsAt: aPosition inMove: aMoveNumber
-	self assert: (console lines at: aMoveNumber*2 - 1) = ('X marcó en ', aPosition printString).
-	self assert: (console lines at: aMoveNumber*2) =  'Estado: Juego terminado - Ganó X!!'.! !
+!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 6/3/2018 17:50:13'!
+assert: lines PrintsXAt: aPosition inMove: aMoveNumber
+	self assert: (lines at: aMoveNumber*2 - 1) = ('X marcó en ', aPosition printString).
+	self assert: (lines at: aMoveNumber*2) =  'Estado: Jugando O'.! !
+
+!TicTacToeConsoleTest methodsFor: 'assertions' stamp: 'lp 6/3/2018 17:50:31'!
+assert: lines PrintsXWinsAt: aPosition inMove: aMoveNumber
+	self assert: (lines at: aMoveNumber*2 - 1) = ('X marcó en ', aPosition printString).
+	self assert: (lines at: aMoveNumber*2) =  'Estado: Juego terminado - Ganó X!!'.! !
 
 
-!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 5/31/2018 19:06:27'!
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:53:40'!
 test01GameStartsConsolePrintsNothing
+
+	|lines|
 	
 	game _ TicTacToe new.
 	
 	console _ TicTacToeConsole for: game.
 	
-	self assert: console lines isEmpty 
+	lines := console lines.
+	
+	self assert: lines isEmpty 
 	! !
 
-!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 5/31/2018 20:19:03'!
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:50:47'!
 test02XPlaysConsolePrintsActionAndState
+
+	|lines|
 	
 	game _ TicTacToe new.
-	
+		
 	console _ TicTacToeConsole for: game.
 	
 	game markWithXAt: 2@2.
 	
-	self assertPrintsXAt: 2@2 inMove: 1.
+	lines := console lines.
+
+	self assert: lines PrintsXAt: 2@2 inMove: 1.
 
 	! !
 
-!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 5/31/2018 20:19:14'!
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:51:08'!
 test03OPlaysConsolePrintsActionAndState
+	
+	|lines|
 	
 	game _ TicTacToe new.
 	
@@ -59,8 +74,10 @@ test03OPlaysConsolePrintsActionAndState
 	game markWithXAt: 2@2.
 	game markWithOAt: 1@1.
 	
-	self assertPrintsXAt: 2@2 inMove: 1.
-	self assertPrintsOAt: 1@1 inMove: 2.
+	lines := console lines.
+	
+	self assert: lines PrintsXAt: 2@2 inMove: 1.
+	self assert: lines PrintsOAt: 1@1 inMove: 2.
 
 	
 	
@@ -68,8 +85,10 @@ test03OPlaysConsolePrintsActionAndState
 
 	! !
 
-!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 5/31/2018 20:19:41'!
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:51:33'!
 test04XPlaysForSecondTimeConsolePrintsActionAndState
+
+	|lines|
 	
 	game _ TicTacToe new.
 	
@@ -79,9 +98,11 @@ test04XPlaysForSecondTimeConsolePrintsActionAndState
 	game markWithOAt: 1@1.
 	game markWithXAt: 1@3.
 	
-	self assertPrintsXAt: 2@2 inMove: 1.
-	self assertPrintsOAt: 1@1 inMove: 2.
-	self assertPrintsXAt: 1@3 inMove: 3.
+	lines := console lines.
+	
+	self assert: lines PrintsXAt: 2@2 inMove: 1.
+	self assert: lines PrintsOAt: 1@1 inMove: 2.
+	self assert: lines PrintsXAt: 1@3 inMove: 3.
 
 
 	
@@ -90,8 +111,10 @@ test04XPlaysForSecondTimeConsolePrintsActionAndState
 
 	! !
 
-!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 5/31/2018 20:23:20'!
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:52:08'!
 test05XWinsConsolePrintsActionAndState
+
+	|lines|
 	
 	game _ TicTacToe new.
 	
@@ -103,11 +126,85 @@ test05XWinsConsolePrintsActionAndState
 	game markWithOAt: 1@2.
 	game markWithXAt: 3@1.
 	
-	self assertPrintsXAt: 2@2 inMove: 1.
-	self assertPrintsOAt: 1@1 inMove: 2.
-	self assertPrintsXAt: 1@3 inMove: 3.
-	self assertPrintsOAt: 1@2 inMove: 4.
-	self assertPrintsXWinsAt: 3@1 inMove: 5.
+	lines := console lines.
+	
+	self assert: lines PrintsXAt: 2@2 inMove: 1.
+	self assert: lines PrintsOAt: 1@1 inMove: 2.
+	self assert: lines PrintsXAt: 1@3 inMove: 3.
+	self assert: lines PrintsOAt: 1@2 inMove: 4.
+	self assert: lines PrintsXWinsAt: 3@1 inMove: 5.
+
+
+
+	
+	
+
+
+	! !
+
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 17:54:47'!
+test06OWinsConsolePrintsActionAndState
+	
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	console _ TicTacToeConsole for: game.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	game markWithXAt: 1@3.
+	game markWithOAt: 3@1.
+	game markWithXAt: 1@2.
+	game markWithOAt: 2@1.
+	
+	lines := console lines.
+	
+	self assert: lines PrintsXAt: 2@2 inMove: 1.
+	self assert: lines PrintsOAt: 1@1 inMove: 2.
+	self assert: lines PrintsXAt: 1@3 inMove: 3.
+	self assert: lines PrintsOAt: 3@1 inMove: 4.
+	self assert: lines PrintsXAt:  1@2 inMove: 5.
+	self assert: lines PrintsOWinsAt: 2@1 inMove: 6.
+
+
+
+	
+	
+
+
+	! !
+
+!TicTacToeConsoleTest methodsFor: 'testing' stamp: 'lp 6/3/2018 18:03:34'!
+test07TieConsolePrintsActionAndState
+	
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	console _ TicTacToeConsole for: game.
+	
+	game markWithXAt: 1@3.
+	game markWithOAt: 2@3.
+	game markWithXAt: 3@3.	
+	game markWithOAt: 1@1.
+	game markWithXAt: 2@1.
+	game markWithOAt: 3@1.
+	game markWithXAt: 1@2.
+	game markWithOAt: 2@2.
+	game markWithXAt: 3@2.
+	
+	lines := console lines.
+	
+	self assert: lines PrintsXAt: 1@3 inMove: 1.
+	self assert: lines PrintsOAt: 2@3 inMove: 2.
+	self assert: lines PrintsXAt: 3@3 inMove: 3.
+	self assert: lines PrintsOAt: 1@1 inMove: 4.
+	self assert: lines PrintsXAt:  2@1 inMove: 5.
+	self assert: lines PrintsOAt: 3@1 inMove: 6.
+	self assert: lines PrintsXAt: 1@2 inMove: 7.
+	self assert: lines PrintsOAt: 2@2 inMove: 8.
+	self assert: lines PrintsTieAt:  3@2 inMove: 9.
 
 
 
@@ -529,6 +626,198 @@ assertXWon
 ! !
 
 
+!classDefinition: #TicTacToeVisorTest category: #TicTacToe!
+TestCase subclass: #TicTacToeVisorTest
+	instanceVariableNames: 'game visor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TicTacToe'!
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:27:53'!
+test01GameStartsVisorPrintsEmptyBoardAndXPlaying
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	lines := visor lines.
+	
+	self assertIsEmptyRow: (lines at: 1).
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assertIsEmptyRow: (lines at: 3). 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assertIsEmptyRow: (lines at: 5).
+	self assertThat: (lines at: 6) showsThatIsPlaying: 'X'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:21:38'!
+test02XPlaysVisorPrintsXInPosittionAnd0Playing
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 2@2.
+	
+	lines := visor lines.
+	
+	self assertIsEmptyRow: (lines at: 1).
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = ' |X| '. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assertIsEmptyRow: (lines at: 5).
+	self assertThat: (lines at: 6) showsThatIsPlaying: 'O'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:27:20'!
+test03OPlaysVisorPrintsOInPositionAndXPlaying
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	
+	lines := visor lines.
+	
+	self assertIsEmptyRow: (lines at: 1).
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = ' |X| '. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assert: (lines at: 5) = 'O| | '. 
+	self assertThat: (lines at: 6) showsThatIsPlaying: 'X'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:26:31'!
+test04XPlaysSecondMoveVisorPrintsXInPositionAndOPlaying
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	game markWithXAt: 1@3.
+	
+	lines := visor lines.
+	
+	self assert: (lines at: 1) = 'X| | '.
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = ' |X| '. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assert: (lines at: 5) = 'O| | '. 
+	self assertThat: (lines at: 6) showsThatIsPlaying: 'O'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:31:52'!
+test05XwinsVisorPrintsBoardAndState
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	game markWithXAt: 1@3.
+	game markWithOAt: 1@2.
+	game markWithXAt: 3@1.
+	
+	lines := visor lines.
+	
+	self assert: (lines at: 1) = 'X| | '.
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = 'O|X| '. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assert: (lines at: 5) = 'O| |X'. 
+	self assertThat:   (lines at: 6) showsThatTheWinnerIs: 'X'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:33:12'!
+test06OwinsVisorPrintsBoardAndState
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	game markWithXAt: 1@3.
+	game markWithOAt: 3@1.
+	game markWithXAt: 1@2.
+	game markWithOAt: 2@1.
+	
+	lines := visor lines.
+	
+	self assert: (lines at: 1) = 'X| | '.
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = 'X|X| '. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assert: (lines at: 5) = 'O|O|O'. 
+	self assertThat:   (lines at: 6) showsThatTheWinnerIs: 'O'.
+! !
+
+!TicTacToeVisorTest methodsFor: 'Testing' stamp: 'lp 6/3/2018 17:44:51'!
+test07GameEndsInTieVisorPrintsBoardAndState
+
+	|lines|
+	
+	game _ TicTacToe new.
+	
+	visor _ TicTacToeVisor for: game.
+	
+	game markWithXAt: 1@3.
+	game markWithOAt: 2@3.
+	game markWithXAt: 3@3.
+	
+	game markWithOAt: 1@1.
+	game markWithXAt: 2@1.
+	game markWithOAt: 3@1.
+
+	game markWithXAt: 1@2.
+	game markWithOAt: 2@2.
+	game markWithXAt: 3@2.
+	
+	lines := visor lines.
+	
+	self assert: (lines at: 1) = 'X|O|X'.
+	self assertIsSeparatorRow: (lines at: 2). 
+	self assert: (lines at: 3) = 'X|O|X'. 
+	self assertIsSeparatorRow: (lines at: 4). 
+	self assert: (lines at: 5) = 'O|X|O'. 
+	self assert:(lines at: 6) = 'Tie !!'.
+! !
+
+
+!TicTacToeVisorTest methodsFor: 'asserts' stamp: 'lp 6/3/2018 16:25:52'!
+assertIsEmptyRow: aVisorRow
+	self assert: aVisorRow = ' | | '.! !
+
+!TicTacToeVisorTest methodsFor: 'asserts' stamp: 'lp 6/3/2018 16:26:35'!
+assertIsSeparatorRow: aVisorRow
+	self assert: aVisorRow = '-----'.! !
+
+!TicTacToeVisorTest methodsFor: 'asserts' stamp: 'lp 6/3/2018 16:29:32'!
+assertThat: aVisorRow showsThatIsPlaying: aPlayer
+	self assert: aVisorRow = ('Playing ', aPlayer) .! !
+
+!TicTacToeVisorTest methodsFor: 'asserts' stamp: 'lp 6/3/2018 17:31:31'!
+assertThat: aVisorRow showsThatTheWinnerIs: aPlayer
+	self assert: aVisorRow = (aPlayer, ' won !!') .! !
+
+
 !classDefinition: #Observable category: #TicTacToe!
 Object subclass: #Observable
 	instanceVariableNames: 'observers'
@@ -821,10 +1110,14 @@ lines
 	^ lines copy! !
 
 
-!TicTacToeConsole methodsFor: 'update' stamp: 'lp 5/31/2018 20:30:20'!
+!TicTacToeConsole methodsFor: 'update' stamp: 'lp 6/3/2018 17:59:23'!
 updateWith: aPosition
 	| lastPlayer currentPlayer|
-	observed isPlayingX ifTrue: [currentPlayer := 'X'. lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. currentPlayer := 'O'].
+	
+	observed isOver ifTrue: [
+		observed hasPlayerOWon ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'].
+		] ifFalse: [observed isPlayingX ifTrue: [currentPlayer := 'X'. lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. currentPlayer := 'O'].].
+	
 	
 	lines add: lastPlayer, ' marcó en ', aPosition printString.
 	
@@ -836,6 +1129,10 @@ updateWith: aPosition
 				ifFalse: ['Estado: Juego terminado - Empate!!']
 				]
 		]
+	
+
+	
+	
 	ifFalse: ['Estado: Jugando ', currentPlayer ]).! !
 
 
@@ -846,30 +1143,32 @@ Observer subclass: #TicTacToeVisor
 	poolDictionaries: ''
 	category: 'TicTacToe'!
 
-!TicTacToeVisor methodsFor: 'initialization' stamp: 'lp 5/31/2018 20:39:30'!
+!TicTacToeVisor methodsFor: 'initialization' stamp: 'lp 6/3/2018 16:15:34'!
 initializeWith: aTicTacToe
 	super initializeWith: aTicTacToe .
 	positions := OrderedCollection new.
-	1 to: 9 do: [positions add: ' '].! !
+	1 to: 9 do: [:x | positions add: ' '].! !
 
 
-!TicTacToeVisor methodsFor: 'update' stamp: 'lp 5/31/2018 20:42:15'!
+!TicTacToeVisor methodsFor: 'update' stamp: 'lp 6/3/2018 17:38:05'!
 updateWith: aPosition
-	| lastPlayer currentPlayer|
-	observed isPlayingX ifTrue: [currentPlayer := 'X'. lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. currentPlayer := 'O'].
+	| lastPlayer|
+	observed isOver ifTrue: [
+		observed hasPlayerOWon ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'].
+		] ifFalse: [observed isPlayingX ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. ].].
 	
-	positions at: (aPosition first * 3 + aPosition second ) put: lastPlayer.! !
+	positions at: ((aPosition x -1) * 3 + aPosition y ) put: lastPlayer.! !
 
 
-!TicTacToeVisor methodsFor: 'as yet unclassified' stamp: 'lp 5/31/2018 20:59:35'!
+!TicTacToeVisor methodsFor: 'as yet unclassified' stamp: 'lp 6/3/2018 16:48:18'!
 lines
 	|visualTicTacToe currentPlayer|
 	visualTicTacToe  := OrderedCollection new.
 	visualTicTacToe  add: (self printRow: 1).
 	visualTicTacToe  add: (self printRowSeparator ).
-	visualTicTacToe  add: (self printRow: 3).
-	visualTicTacToe  add: (self printRowSeparator ).
 	visualTicTacToe  add: (self printRow: 2).
+	visualTicTacToe  add: (self printRowSeparator ).
+	visualTicTacToe  add: (self printRow: 3).
 	
 	observed isPlayingX ifTrue: [currentPlayer := 'X'] ifFalse: [currentPlayer := 'O'].
 		
@@ -886,11 +1185,11 @@ lines
 	^visualTicTacToe
 	! !
 
-!TicTacToeVisor methodsFor: 'as yet unclassified' stamp: 'lp 5/31/2018 20:53:34'!
+!TicTacToeVisor methodsFor: 'as yet unclassified' stamp: 'lp 6/3/2018 17:16:10'!
 printRow: aRowNumber
 	|index|
-	index := aRowNumber*3 - 2.
-	^ (positions at: index) , '|',  (positions at: (index + 1))  , '|', positions at: (index + 2).! !
+	index := aRowNumber*-1 + 4.
+	^ (positions at: index) , '|',  (positions at: (index + 3))  , '|', (positions at: (index + 6)).! !
 
 !TicTacToeVisor methodsFor: 'as yet unclassified' stamp: 'lp 5/31/2018 20:54:25'!
 printRowSeparator
