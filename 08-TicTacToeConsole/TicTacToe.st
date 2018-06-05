@@ -1110,30 +1110,28 @@ lines
 	^ lines copy! !
 
 
-!TicTacToeConsole methodsFor: 'update' stamp: 'lp 6/3/2018 17:59:23'!
+!TicTacToeConsole methodsFor: 'update' stamp: 'lp 6/4/2018 13:05:50'!
 updateWith: aPosition
-	| lastPlayer currentPlayer|
+	| lastPlayer currentPlayer state|
 	
+	"Decidimos dejar estos ifs ya que no nos parece correcto agregar mensajes en los estados que interactuen con los observers ya que los objetos observados no deberian 
+	saber que estan siendo observados ni modificar su comportamiento. Al anadir comportamiento especifico en los estados se estaria perdiendo el sentido de los observadores
+	que es mirar al objeto observado y realizar acciones sin que este lo sepa."
+	
+	state := 'Estado: '.
 	observed isOver ifTrue: [
-		observed hasPlayerOWon ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'].
-		] ifFalse: [observed isPlayingX ifTrue: [currentPlayer := 'X'. lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. currentPlayer := 'O'].].
+		state := state, 'Juego terminado - '.
+		observed hasPlayerOWon ifTrue: [lastPlayer := 'O'. state := state, 'Ganó O!!'.] 
+									    ifFalse: [observed isTied ifTrue:[state:= state, 'Empate!!'.] 
+																	ifFalse:[state := state, 'Ganó X!!'.].
+												lastPlayer := 'X'.].]
+						 ifFalse: [observed isPlayingX ifTrue: [currentPlayer := 'X'. lastPlayer := 'O']
+														    ifFalse: [lastPlayer := 'X'. currentPlayer := 'O']. state := state, 'Jugando ', currentPlayer . ].
 	
 	
 	lines add: lastPlayer, ' marcó en ', aPosition printString.
-	
-	lines add: (observed isOver  
-	ifTrue: [observed hasPlayerXWon  
-		ifTrue: ['Estado: Juego terminado - Ganó X!!'] 
-		ifFalse: [observed hasPlayerOWon 
-				ifTrue: ['Estado: Juego terminado - Ganó O!!'] 
-				ifFalse: ['Estado: Juego terminado - Empate!!']
-				]
-		]
-	
-
-	
-	
-	ifFalse: ['Estado: Jugando ', currentPlayer ]).! !
+	lines add: state.
+	! !
 
 
 !classDefinition: #TicTacToeVisor category: #TicTacToe!
@@ -1150,9 +1148,13 @@ initializeWith: aTicTacToe
 	1 to: 9 do: [:x | positions add: ' '].! !
 
 
-!TicTacToeVisor methodsFor: 'update' stamp: 'lp 6/3/2018 17:38:05'!
+!TicTacToeVisor methodsFor: 'update' stamp: 'lp 6/4/2018 13:05:42'!
 updateWith: aPosition
 	| lastPlayer|
+	
+	"Decidimos dejar estos ifs ya que no nos parece correcto agregar mensajes en los estados que interactuen con los observers ya que los objetos observados no deberian 
+	saber que estan siendo observados ni modificar su comportamiento. Al anadir comportamiento especifico en los estados se estaria perdiendo el sentido de los observadores
+	que es mirar al objeto observado y realizar acciones sin que este lo sepa."
 	observed isOver ifTrue: [
 		observed hasPlayerOWon ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'].
 		] ifFalse: [observed isPlayingX ifTrue: [lastPlayer := 'O'] ifFalse: [lastPlayer := 'X'. ].].
