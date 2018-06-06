@@ -118,7 +118,7 @@ test09aBookThatIsNotInTheCartCanotBeRemovedFromACart
 		withExceptionDo: [ :aCart |
 			self assert: Cart removingInexistentElementMessageError = aCart messageText ]! !
 
-!CartTest methodsFor: 'Test' stamp: 'lp 6/6/2018 15:14:03'!
+!CartTest methodsFor: 'Test' stamp: 'lp 6/6/2018 15:57:01'!
 test10SomeCopiesOfABookCanBeRemovedFromACart
 	|cart catalogue|
 	catalogue := Catalogue new.
@@ -127,24 +127,26 @@ test10SomeCopiesOfABookCanBeRemovedFromACart
 	
 	cart add: 2 copiesOf: '1234'.
 	
-	self deny: (cart isEmpty).
+	self assert: (cart size = 2) .
 	
 	cart remove: 1 copiesOf: '1234'.
 	
 	self assert: (cart size = 1) .! !
 
-!CartTest methodsFor: 'Test' stamp: 'lp 6/6/2018 15:27:11'!
-test11CartRemovesAllCopiesWhenTryingToRemoveMoreThanContained
+!CartTest methodsFor: 'Test' stamp: 'lp 6/6/2018 15:54:46'!
+test11CannotRemoveMoreThanContainedInCart
 	|cart catalogue|
 	catalogue := Catalogue new.
 	catalogue add: '1234'.
 	cart := Cart with: catalogue.
 	
 	cart add: 2 copiesOf: '1234'.
-		
-	cart remove: 3 copiesOf: '1234'.
 	
-	self assert: cart isEmpty .! !
+	self 
+		should: [ cart remove: 3 copiesOf: '1234'.]
+		raise: Error
+		withExceptionDo: [ :aCart |
+			self assert: Cart cannotRemoveMoreElementsThatContainedInCartMessageError = aCart messageText ]! !
 
 
 !classDefinition: #Cart category: #'TusLibros.com'!
@@ -154,55 +156,58 @@ Object subclass: #Cart
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-!Cart methodsFor: 'accesing' stamp: 'lp 6/6/2018 15:00:14'!
+!Cart methodsFor: 'accesing' stamp: 'lp 6/6/2018 15:53:43'!
 copiesOf: aBookCode
-	^ elements at: aBookCode ifAbsent: [^0].! !
+	^ (elements select: [:anElem | anElem = aBookCode]) size.! !
 
 !Cart methodsFor: 'accesing' stamp: 'CZ 6/4/2018 21:18:02'!
 isEmpty
 	^elements isEmpty .! !
 
-!Cart methodsFor: 'accesing' stamp: 'lp 6/6/2018 14:56:02'!
+!Cart methodsFor: 'accesing' stamp: 'lp 6/6/2018 15:52:12'!
 size
-	^ elements inject: 0  into: [:acum :aValue | acum + aValue] .! !
+	^ elements size.! !
 
 
 !Cart methodsFor: 'adding' stamp: 'lp 6/6/2018 14:45:22'!
 add: aBookCode
 	self add: 1 copiesOf: aBookCode.! !
 
-!Cart methodsFor: 'adding' stamp: 'lp 6/6/2018 15:20:31'!
+!Cart methodsFor: 'adding' stamp: 'lp 6/6/2018 15:51:41'!
 add: anAmount copiesOf: aBookCode
 	self assertABookCodeIsInCatalogue: aBookCode .
-	elements at: aBookCode ifPresent: [elements at: aBookCode put: (elements at: aBookCode) + anAmount.] 
-		ifAbsent: [elements at: aBookCode put: anAmount.]! !
+	1 to: anAmount do: [:aNumber | elements add: aBookCode].! !
 
 
-!Cart methodsFor: 'removing' stamp: 'lp 6/6/2018 15:25:24'!
+!Cart methodsFor: 'removing' stamp: 'lp 6/6/2018 15:56:19'!
 remove: anAmount copiesOf: aBookCode
 	|copies|
 	self assertABookCodeIsInCart: aBookCode.
-	copies := elements at: aBookCode.
-	(copies - anAmount  > 0) ifFalse: [^ self removeAllCopiesOf: aBookCode].
-	elements at: aBookCode put: (elements at: aBookCode) - anAmount.
+	copies := (elements select: [:anElem | anElem = aBookCode]) size.
+	
+	(copies - anAmount  >= 0) ifFalse:  [ self error: self class cannotRemoveMoreElementsThatContainedInCartMessageError ].
+	
+	self removeAllCopiesOf: aBookCode.
+	self add: (copies - anAmount) copiesOf: aBookCode.
 ! !
 
-!Cart methodsFor: 'removing' stamp: 'lp 6/6/2018 15:21:57'!
+!Cart methodsFor: 'removing' stamp: 'lp 6/6/2018 15:39:55'!
 removeAllCopiesOf: aBookCode
 	self assertABookCodeIsInCart: aBookCode.
-	elements removeKey: aBookCode.
+	elements := elements select: [:anElem | anElem ~= aBookCode].
 ! !
 
 
-!Cart methodsFor: 'initialization' stamp: 'lp 6/6/2018 14:47:02'!
+!Cart methodsFor: 'initialization' stamp: 'lp 6/6/2018 15:32:13'!
 initializeWith: aCatalogue
 	catalogue := aCatalogue.
-	elements := Dictionary  new.! !
+	elements := OrderedCollection  new.! !
 
 
-!Cart methodsFor: 'asserting - private' stamp: 'lp 6/6/2018 15:21:29'!
+!Cart methodsFor: 'asserting - private' stamp: 'lp 6/6/2018 15:34:19'!
 assertABookCodeIsInCart: aBookCode
-	elements at: aBookCode ifAbsent: [self error: self class removingInexistentElementMessageError] .! !
+	(elements includes: aBookCode) ifFalse: [self error: self class removingInexistentElementMessageError] .
+! !
 
 !Cart methodsFor: 'asserting - private' stamp: 'lp 6/6/2018 15:25:52'!
 assertABookCodeIsInCatalogue: aBookCode
@@ -214,6 +219,10 @@ assertABookCodeIsInCatalogue: aBookCode
 !classDefinition: 'Cart class' category: #'TusLibros.com'!
 Cart class
 	instanceVariableNames: ''!
+
+!Cart class methodsFor: 'error' stamp: 'lp 6/6/2018 15:42:41'!
+cannotRemoveMoreElementsThatContainedInCartMessageError
+	^'No se pueden borrar mas elementos de los contenidos'! !
 
 !Cart class methodsFor: 'error' stamp: 'CZ 6/4/2018 21:24:06'!
 invalidElementMessageError
