@@ -5,13 +5,13 @@ TestCase subclass: #TusLibrosTest
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-!TusLibrosTest methodsFor: 'test support' stamp: 'CZ 6/7/2018 21:32:17'!
+!TusLibrosTest methodsFor: 'test support' stamp: 'lp 6/9/2018 20:15:32'!
 createCreditCardWithExpirationOn012018
-	^CreditCard with: (Date newDay: 01 month: 01 year: 2018).! !
+	^CreditCard expiringOn: (MonthOfYear with: 01 of: 2018).! !
 
-!TusLibrosTest methodsFor: 'test support' stamp: 'CZ 6/7/2018 21:23:13'!
+!TusLibrosTest methodsFor: 'test support' stamp: 'lp 6/9/2018 20:15:49'!
 createCreditCardWithExpirationOn012019
-	^CreditCard with: (Date newDay: 01 month: 01 year: 2019).! !
+	^CreditCard expiringOn: (MonthOfYear with: 01 of: 2019).! !
 
 !TusLibrosTest methodsFor: 'test support' stamp: 'CZ 6/7/2018 20:57:21'!
 createEmptyCart
@@ -126,43 +126,42 @@ TusLibrosTest subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'CZ 6/7/2018 21:31:36'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 19:57:16'!
 test01cannotCheckoutEmptyCart
-	| cashier cart today creditCard|
-	cashier := Cashier new.
+	| cart today creditCard|
 	creditCard := self createCreditCardWithExpirationOn012019.
 	today := Date newDay: 07 month: 06 year: 2018.
 	
 	cart := self createEmptyCart .
 	self 
-		should: [ cashier checkout: cart with: creditCard on: today]
+		should: [ Cashier checkingOut: cart payingWith: creditCard on: today. ]
 		raise: Error
 		withExceptionDo: [ :aCashier |
 			self assert: Cashier cannotCheckoutEmptyCartErrorMessage  = aCashier messageText ]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'CZ 6/7/2018 21:33:35'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:31:29'!
 test02cannotCheckoutWithExpiredCreditCard
-	| cashier cart today creditCard|
-	cashier := Cashier new.
+	| cart today creditCard|
 	creditCard := self createCreditCardWithExpirationOn012018.
 	today := Date newDay: 07 month: 06 year: 2018.
+	cart := self createCartWithElPrincipitoPriced10 .
 	
-	cart := self createCartWithElPrincipitoPriced10AndElAlephPriced20 .
 	self 
-		should: [ cashier checkout: cart with: creditCard on: today]
+		should: [ Cashier checkingOut: cart payingWith: creditCard on: today.]
 		raise: Error
 		withExceptionDo: [ :aCashier |
 			self assert: Cashier cannotCheckoutWithExpiredCreditCardErrorMessage  = aCashier messageText ]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'CZ 6/7/2018 21:39:22'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:29:15'!
 test03checkoutACartWithAnElementReturnsElementPrice
 	| cashier cart today creditCard|
-	cashier := Cashier new.
-	creditCard := self createCreditCardWithExpirationOn012018.
+	creditCard := self createCreditCardWithExpirationOn012019.
 	today := Date newDay: 07 month: 06 year: 2018.
-	
 	cart := self createCartWithElPrincipitoPriced10 .
-	self assert: (cashier checkout: cart with: creditCard on: today) = 10.! !
+	
+	cashier := Cashier checkingOut: cart payingWith: creditCard on: today.
+	
+	self assert: (cashier checkout) = 10.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -209,7 +208,6 @@ add: anAmount copiesOf: aBookCode
 	1 to: anAmount do: [:aNumber | elements add: aBookCode].! !
 
 
-
 !Cart methodsFor: 'initialization' stamp: 'lp 6/6/2018 15:32:13'!
 initializeWith: aCatalogue
 	catalogue := aCatalogue.
@@ -248,19 +246,24 @@ with: aCatalogue
 
 !classDefinition: #Cashier category: #'TusLibros.com'!
 Object subclass: #Cashier
-	instanceVariableNames: ''
+	instanceVariableNames: 'cart creditCard date'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros.com'!
 
-!Cashier methodsFor: 'asserting' stamp: 'CZ 6/7/2018 21:37:14'!
+!Cashier methodsFor: 'asserting' stamp: 'lp 6/9/2018 20:31:05'!
 assert: aCreditCard isNotExpiredOn: aDate.
-	(aCreditCard expirationDate > aDate) ifFalse: [self error: self class cannotCheckoutWithExpiredCreditCardErrorMessage]. ! !
+	(aCreditCard isNotExpiredOn: aDate) ifFalse: [self error: self class cannotCheckoutWithExpiredCreditCardErrorMessage]. ! !
 
 !Cashier methodsFor: 'asserting' stamp: 'CZ 6/7/2018 21:30:06'!
 assertIsNotEmpty: aCart
 	(aCart isEmpty) ifTrue: [self error: self class cannotCheckoutEmptyCartErrorMessage]. ! !
 
+
+!Cashier methodsFor: 'checkout' stamp: 'lp 6/9/2018 20:29:36'!
+checkout
+	
+	^cart totalAmount.! !
 
 !Cashier methodsFor: 'checkout' stamp: 'CZ 6/7/2018 21:26:09'!
 checkout: aCart with: aCreditCard on: aDate
@@ -268,6 +271,17 @@ checkout: aCart with: aCreditCard on: aDate
 	self assert: aCreditCard isNotExpiredOn: aDate.
 	
 	^aCart totalAmount.! !
+
+
+!Cashier methodsFor: 'initialization' stamp: 'lp 6/9/2018 20:27:47'!
+initializeWith: aCart paymentWith: aCreditCard on: aDate
+	self assertIsNotEmpty: aCart.
+	self assert: aCreditCard isNotExpiredOn: aDate.
+	
+	cart := aCart.
+	creditCard := aCreditCard.
+	date := aDate.
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -283,6 +297,11 @@ cannotCheckoutEmptyCartErrorMessage
 cannotCheckoutWithExpiredCreditCardErrorMessage
 	^'No se puede checkoutear con una tarjeta vencida.'.! !
 
+
+!Cashier class methodsFor: 'class initialization' stamp: 'lp 6/9/2018 19:55:27'!
+checkingOut: aCart payingWith: aCreditCard on: aDate
+	^ self new initializeWith: aCart paymentWith: aCreditCard  on: aDate. ! !
+
 
 !classDefinition: #CreditCard category: #'TusLibros.com'!
 Object subclass: #CreditCard
@@ -296,9 +315,13 @@ expirationDate
 	^expirationDate .! !
 
 
-!CreditCard methodsFor: 'as yet unclassified' stamp: 'CZ 6/7/2018 21:14:58'!
-with: anExpirationDate 
-	expirationDate := anExpirationDate.! !
+!CreditCard methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:05:51'!
+initializeWithExpiration: aMonthOfYear 
+	expirationDate := aMonthOfYear.! !
+
+!CreditCard methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:26:31'!
+isNotExpiredOn: aDate
+	^ expirationDate isAfter: aDate.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -306,6 +329,43 @@ with: anExpirationDate
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'as yet unclassified' stamp: 'CZ 6/7/2018 21:15:08'!
-with: anExpirationDate
-	^ self new with: anExpirationDate .! !
+!CreditCard class methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:05:25'!
+expiringOn: aMonthOfYear
+	^ self new initializeWithExpiration: aMonthOfYear.! !
+
+
+!classDefinition: #MonthOfYear category: #'TusLibros.com'!
+Object subclass: #MonthOfYear
+	instanceVariableNames: 'month year'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros.com'!
+
+!MonthOfYear methodsFor: 'initialization' stamp: 'lp 6/9/2018 20:07:41'!
+initializeWith: aMonth of: aYear
+	month := aMonth.
+	year := aYear.! !
+
+
+!MonthOfYear methodsFor: 'accessing' stamp: 'lp 6/9/2018 20:08:39'!
+month
+	 ^ month.! !
+
+!MonthOfYear methodsFor: 'accessing' stamp: 'lp 6/9/2018 20:08:44'!
+year
+	 ^ year.! !
+
+
+!MonthOfYear methodsFor: 'as yet unclassified' stamp: 'lp 6/9/2018 20:25:05'!
+isAfter: aDate
+	^ ( (year > aDate yearNumber ) or: ( (year = aDate yearNumber) and: (month > aDate monthIndex ) ) ).! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MonthOfYear class' category: #'TusLibros.com'!
+MonthOfYear class
+	instanceVariableNames: ''!
+
+!MonthOfYear class methodsFor: 'class initialization' stamp: 'lp 6/9/2018 20:06:48'!
+with: aMonth of: aYear
+	^ self new initializeWith: aMonth of: aYear.! !
