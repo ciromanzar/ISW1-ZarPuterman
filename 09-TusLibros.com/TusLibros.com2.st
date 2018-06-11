@@ -85,29 +85,30 @@ test03cannotAddToCartSomethingThatIsNotInTheCatalogue
 		withExceptionDo: [ :aCart |
 			self assert: Cart invalidElementMessageError = aCart messageText ]! !
 
-!CartTest methodsFor: 'Test' stamp: 'CZ 6/7/2018 21:06:38'!
+!CartTest methodsFor: 'Test' stamp: 'CZ 6/11/2018 17:45:28'!
 test04canAddMultipleCopiesOfABook
 	|cart|
 	cart := self createCartWithCatalogueWithElPrincipitoPriced10 .
-	cart add: 2 copiesOf: 'El Principito'.
+	
+	cart add: 2 copiesOf: 'El Principito'. 
+		
+	self assert: cart size = 2! !
 
-	self assert: (cart size = 2).! !
+!CartTest methodsFor: 'Test' stamp: 'CZ 6/11/2018 17:49:10'!
+test05cannotAddNonPositiveCopiesOfABook
+	|cart|
+	cart := self createCartWithCatalogueWithElPrincipitoPriced10 .
+	self should: [ cart add: 0 copiesOf: 'El Principito'. ]
+		raise: Error
+		withExceptionDo: [ :aCart |
+			self assert: Cart invalidAmmountOfElementsMessageError = aCart messageText ]! !
 
-!CartTest methodsFor: 'Test' stamp: 'CZ 6/7/2018 21:08:47'!
-test05canAddMoreThanOneBook
+!CartTest methodsFor: 'Test' stamp: 'CZ 6/11/2018 17:42:59'!
+test06canAddMoreThanOneBook
 	|cart |
 	cart := self createCartWithElPrincipitoPriced10AndElAlephPriced20 .
 	
 	self assert: (cart size = 2).! !
-
-!CartTest methodsFor: 'Test' stamp: 'CZ 6/7/2018 21:11:30'!
-test06aCartKnowsTheAmountOfCopiesOfABookThatItContains
-	|cart |
-	cart := self createCartWithElPrincipitoPriced10AndElAlephPriced20 .
-
-	self assert: cart size = 2.
-	self assert: (cart copiesOf: 'El Principito') = 1.
-	self assert: (cart copiesOf: 'El Aleph') = 1.! !
 
 !CartTest methodsFor: 'Test' stamp: 'CZ 6/7/2018 21:12:39'!
 test07aCartContainsZeroOfCopiesOfABookThatItDoesntContain
@@ -117,6 +118,15 @@ test07aCartContainsZeroOfCopiesOfABookThatItDoesntContain
 	cart add: 2 copiesOf: 'El Principito'.
 
 	self assert: ((cart copiesOf: 'El Aleph') = 0).! !
+
+!CartTest methodsFor: 'Test' stamp: 'CZ 6/11/2018 17:43:12'!
+test08aCartKnowsTheAmountOfCopiesOfABookThatItContains
+	|cart |
+	cart := self createCartWithElPrincipitoPriced10AndElAlephPriced20 .
+
+	self assert: cart size = 2.
+	self assert: (cart copiesOf: 'El Principito') = 1.
+	self assert: (cart copiesOf: 'El Aleph') = 1.! !
 
 
 !classDefinition: #CashierTest category: #'TusLibros.com'!
@@ -202,9 +212,11 @@ totalAmount
 add: aBookCode
 	self add: 1 copiesOf: aBookCode.! !
 
-!Cart methodsFor: 'adding' stamp: 'lp 6/6/2018 15:51:41'!
+!Cart methodsFor: 'adding' stamp: 'CZ 6/11/2018 17:47:16'!
 add: anAmount copiesOf: aBookCode
 	self assertABookCodeIsInCatalogue: aBookCode .
+	self assertAmountIsPossitive: anAmount .
+	
 	1 to: anAmount do: [:aNumber | elements add: aBookCode].! !
 
 
@@ -224,6 +236,11 @@ assertABookCodeIsInCatalogue: aBookCode
 
 	(catalogue includesKey: aBookCode) ifFalse: [ self error: self class invalidElementMessageError ].! !
 
+!Cart methodsFor: 'asserting - private' stamp: 'CZ 6/11/2018 17:48:45'!
+assertAmountIsPossitive: anAmount 
+	anAmount > 0 ifFalse: [self error: self class invalidAmmountOfElementsMessageError] .
+! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cart class' category: #'TusLibros.com'!
@@ -233,6 +250,10 @@ Cart class
 !Cart class methodsFor: 'error' stamp: 'lp 6/6/2018 15:42:41'!
 cannotRemoveMoreElementsThatContainedInCartMessageError
 	^'No se pueden borrar mas elementos de los contenidos'! !
+
+!Cart class methodsFor: 'error' stamp: 'CZ 6/11/2018 17:46:09'!
+invalidAmmountOfElementsMessageError
+	^'Solo se puede agregar una cantidad positiva de elementos.'! !
 
 !Cart class methodsFor: 'error' stamp: 'CZ 6/4/2018 21:24:06'!
 invalidElementMessageError
