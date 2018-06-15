@@ -1,0 +1,15 @@
+'
+El test tiene que simular ser la cara externa y hable con la cara interna.
+	La cara externa tendría un solo mensaje (ej: execute: requesthttp)
+	Le manda a la cara interna los mensajes addToCart, etc... (solo esos 5) que son los que la interfaz tiene que saber contestar.
+	
+	Crear cart con con usuario y contraseña. (invalida, valida) Cuando es invalido levanta excepcion. La interfaz externa es la que devuelve 1|id, o 0|codigoerror.
+	Va a tener que conocer el catalogo, pasarle al cajero el merchant processor etc.
+	Hacer un test que asserte que no se puede usar el carrito despues de 30 minutos sin usarlo.
+		no puede tener un sleep.
+		no puede modificar la hora de la maquina.
+		de alguna manera tiene que hacerle creer a la interfaz que pasaron 30 minutos.
+	Los test no pueden romper el encapsulamiento de la interfaz.
+	Create cart devuelve un cart id, representa una sesion logica.
+	
+'
