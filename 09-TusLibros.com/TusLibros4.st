@@ -86,8 +86,8 @@ test05cannotAddItemToExistingCartThatDoesNotBelongToStore
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = Cart invalidItemErrorMessage ].! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 10:25:10'!
-test06canAddItemToExistingCart
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:38:13'!
+test06cannotAddItemToExpiredCart
 	|interface aDateTime anotherDateTime cartId|
 	
 	 interface := testObjectsFactory defaultInterface.
@@ -135,7 +135,25 @@ test08CannotListCartOfNonExistingCart
 		withExceptionDo: [ :anError | 
 			self assert: anError messageText = APIRestInterface nonExistingCartIdErrorMessage]! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 11:02:55'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:52:50'!
+test08_2CannotListExpiredCart
+
+	|interface aDateTime cartId anotherDateTime|
+	
+	interface := testObjectsFactory defaultInterface.
+	
+	aDateTime := DateAndTime today.
+	anotherDateTime := DateAndTime tomorrow .	
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+
+	self 
+		should: [interface listCart: cartId on: anotherDateTime.] 
+		raise: Error
+		withExceptionDo: [ :anError | 
+			self assert: anError messageText = APIRestInterface expiredCartErrorMessage ]! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:40:56'!
 test09listCartWithItemsReturnsNumberOfItems
 	|interface aDateTime cartId itemList|
 	
@@ -145,9 +163,7 @@ test09listCartWithItemsReturnsNumberOfItems
 	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
 
 	interface add: 1 of: testObjectsFactory itemSellByTheStore to: cartId on: aDateTime .
-		
-	
-	
+			
 	itemList := interface listCart: cartId on: aDateTime.
 	
 	self deny: itemList isEmpty .
@@ -157,7 +173,7 @@ test09listCartWithItemsReturnsNumberOfItems
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 14:23:12'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:44:11'!
 test10CannotCheckoutANonExistentCart
 
 	|interface aDateTime cartId|
@@ -170,7 +186,7 @@ test10CannotCheckoutANonExistentCart
 	cartId := cartId + 1.
 	
 	self 
-		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: self ] 
+		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: self on: aDateTime ] 
 		raise: Error
 		withExceptionDo: [ :anError | 
 			self assert: anError messageText = APIRestInterface nonExistingCartIdErrorMessage]
@@ -182,7 +198,7 @@ test10CannotCheckoutANonExistentCart
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 14:23:38'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:48:57'!
 test11CannotCheckoutAnEmptyCart
 
 	|interface aDateTime cartId|
@@ -194,7 +210,7 @@ test11CannotCheckoutAnEmptyCart
 	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
 	
 	self 
-		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: self ] 
+		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: self on: aDateTime] 
 		raise: Error
 		withExceptionDo: [ :anError | 
 			self assert: anError messageText = APIRestInterface emptyCartErrorMessage ]
@@ -206,7 +222,34 @@ test11CannotCheckoutAnEmptyCart
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 15:34:59'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:50:27'!
+test11_2CannotCheckoutAnExpiredCart
+
+	|interface aDateTime cartId anotherDateTime|
+	
+	aDateTime := DateAndTime today.
+	anotherDateTime := DateAndTime tomorrow .
+		
+	interface := testObjectsFactory defaultInterface .
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+	
+	 interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId  on: aDateTime .
+
+	self 
+		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: testObjectsFactory expiredMonthOfYear on: anotherDateTime ] 
+		raise: Error
+		withExceptionDo: [ :anError | 
+			self assert: anError messageText = APIRestInterface expiredCartErrorMessage ]
+	
+
+
+	
+
+
+! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:49:07'!
 test12CannotCheckoutPayingWithExpiredCard
 
 	|interface aDateTime cartId|
@@ -220,7 +263,7 @@ test12CannotCheckoutPayingWithExpiredCard
 	 interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId  on: aDateTime .
 
 	self 
-		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: testObjectsFactory expiredMonthOfYear ] 
+		should: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: 'Natalia Natalia' andExpirationDate: testObjectsFactory expiredMonthOfYear on: aDateTime ] 
 		raise: Error
 		withExceptionDo: [ :anError | 
 			self assert: anError messageText = APIRestInterface expiredCardErrorMessage ]
@@ -232,7 +275,7 @@ test12CannotCheckoutPayingWithExpiredCard
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 15:35:47'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:49:13'!
 test13CanCheckoutACart
 
 	|interface aDateTime cartId |
@@ -243,7 +286,7 @@ test13CanCheckoutACart
 	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
 	interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId  on: aDateTime .
 	self 
-		shouldnt: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: (testObjectsFactory validUser) andExpirationDate: testObjectsFactory notExpiredMonthOfYear ] 
+		shouldnt: [interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: (testObjectsFactory validUser) andExpirationDate: testObjectsFactory notExpiredMonthOfYear on: aDateTime ] 
 		raise: Error.
 	
 
@@ -295,7 +338,7 @@ test15CannotListPurchasesOfNonAuthenticatedClient
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'lp 6/18/2018 15:39:38'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:49:23'!
 test16ListPurchasesReturnsAcquiredItems
 
 	|interface cartId aDateTime purchasesList|
@@ -304,10 +347,9 @@ test16ListPurchasesReturnsAcquiredItems
 	
 	interface := testObjectsFactory defaultInterface .
 	
-	interface := testObjectsFactory defaultInterface .	
 	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
 	interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId  on: aDateTime .
-	interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: (testObjectsFactory validUser) andExpirationDate: testObjectsFactory notExpiredMonthOfYear.
+	interface checkoutCartWithId: cartId payingWith: 123456790287  ownedBy: (testObjectsFactory validUser) andExpirationDate: testObjectsFactory notExpiredMonthOfYear on: aDateTime.
 	
 	purchasesList := interface listPurchasesOf: testObjectsFactory validUser withPassword: testObjectsFactory validUsersPassword .
 	
@@ -624,17 +666,20 @@ add: aQuantity of: anItem to: aCartId on: aDateAndTime
 	(carts at: aCartId ) key add: aQuantity of: anItem.
 	(carts at: aCartId ) value: aDateAndTime .! !
 
-!APIRestInterface methodsFor: 'system messages' stamp: 'lp 6/18/2018 15:35:31'!
-checkoutCartWithId: aCartId payingWith: aCreditCardNumber ownedBy: aName andExpirationDate: anExpirationDate
+!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 16:48:13'!
+checkoutCartWithId: aCartId payingWith: aCreditCardNumber ownedBy: aName andExpirationDate: anExpirationDate on: aDateTime
 	|creditCard cart|
 	creditCard := CreditCard expiringOn: anExpirationDate .
 	
 	self assertExists: aCartId.
+	self assert: aCartId isValidToUseOn: aDateTime.
 
 	cart := (carts at: aCartId) key .
 	
 	self assertNotEmpty: cart.
 	self assertCreditCard: creditCard isNotExpiredAt: clock now. 
+
+	(carts at: aCartId ) value: aDateTime .
 
 	(Cashier toCheckout: cart ownedBy: aName charging: creditCard on: clock now registeringOn: salesBook via: merchantProcessor ) checkOut.
 ! !
