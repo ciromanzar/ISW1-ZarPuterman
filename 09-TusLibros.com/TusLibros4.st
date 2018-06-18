@@ -11,16 +11,12 @@ setUp
 	testObjectsFactory := StoreTestObjectsFactory new.! !
 
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/14/2018 21:27:33'!
-test01createCartWithNonExistingClientReturnsError
-	|interface aCatalog aUserList aDateTime|
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:00:50'!
+test01cannotCreateCartWithNonExistingClient
+	|interface aDateTime|
 	
-	aCatalog := testObjectsFactory defaultCatalog.	
-	aUserList := testObjectsFactory defaultUserList.	
+	 interface := testObjectsFactory defaultInterface.
 	
-	interface := APIRestInterface acceptingItemsOf: aCatalog and: aUserList.
-	
-
 	aDateTime := DateAndTime today.
 	
 	self
@@ -29,16 +25,12 @@ test01createCartWithNonExistingClientReturnsError
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = APIRestInterface wrongUsernameOrPasswordErrorMessage].! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/14/2018 21:28:01'!
-test02createCartWithExistingClientAndInvalidPasswordReturnsError
-	|interface aCatalog aUserList aDateTime|
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:01:56'!
+test02cannotCreateCartWithExistingClientAndInvalidPassword
+	|interface aDateTime|
 	
-	aCatalog := testObjectsFactory defaultCatalog.	
-	aUserList := testObjectsFactory defaultUserList.	
+	 interface := testObjectsFactory defaultInterface.
 	
-	interface := APIRestInterface acceptingItemsOf: aCatalog and: aUserList.
-	
-
 	aDateTime := DateAndTime today.
 	
 	self
@@ -47,14 +39,11 @@ test02createCartWithExistingClientAndInvalidPasswordReturnsError
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = APIRestInterface wrongUsernameOrPasswordErrorMessage].! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/14/2018 21:36:27'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:02:14'!
 test03createCartWithExistingClientValidPasswordReturnsCartId
-	|interface aCatalog aUserList aDateTime cartId |
+	|interface aDateTime cartId|
 	
-	aCatalog := testObjectsFactory defaultCatalog.	
-	aUserList := testObjectsFactory defaultUserList.	
-	
-	interface := APIRestInterface acceptingItemsOf: aCatalog and: aUserList.
+	 interface := testObjectsFactory defaultInterface.
 	
 
 	aDateTime := DateAndTime today.
@@ -62,6 +51,71 @@ test03createCartWithExistingClientValidPasswordReturnsCartId
 	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
 	
 	self assert: cartId = 1.! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:09:02'!
+test04cannotAddItemToNonExistingCartId
+	|interface aDateTime cartId|
+	
+	 interface := testObjectsFactory defaultInterface.
+	
+
+	aDateTime := DateAndTime today.
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+	
+		self
+		should: [ interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId + 1 on: aDateTime. ]
+		raise: Error 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = APIRestInterface nonExistingCartIdErrorMessage ].! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:09:37'!
+test05cannotAddItemToExistingCartThatDoNotBelongToStore
+	|interface aDateTime cartId|
+	
+	 interface := testObjectsFactory defaultInterface.
+	
+
+	aDateTime := DateAndTime today.
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+	
+		self
+		should: [ interface add: 1 of: (testObjectsFactory itemNotSellByTheStore) to: cartId  on: aDateTime. ]
+		raise: Error 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Cart invalidItemErrorMessage ].! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:27:55'!
+test05cannotAddItemToExpiredCart
+	|interface aDateTime anotherDateTime cartId|
+	
+	 interface := testObjectsFactory defaultInterface.
+	
+	aDateTime := DateAndTime today.
+	anotherDateTime := DateAndTime tomorrow .
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+	
+		self
+		should: [ interface add: 1 of: (testObjectsFactory itemSellByTheStore) to: cartId  on: anotherDateTime. ]
+		raise: Error 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = APIRestInterface expiredCartErrorMessage].! !
+
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 02:33:57'!
+test05listEmptyCartReturnsEmptyCollection
+	|interface aDateTime cartId itemList|
+	
+	 interface := testObjectsFactory defaultInterface.
+	
+	aDateTime := DateAndTime today.
+	
+	cartId := interface createCartAs: testObjectsFactory validUser with: testObjectsFactory validUsersPassword on: aDateTime. 
+	
+	itemList := interface listCart: cartId on: aDateTime.
+	
+	self assert: itemList isEmpty .! !
 
 
 !classDefinition: #CartTest category: #TusLibros!
@@ -76,7 +130,7 @@ test01NewCartsAreCreatedEmpty
 
 	self assert: testObjectsFactory createCart isEmpty! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'CZ 6/18/2018 02:11:32'!
 test02CanNotAddItemsThatDoNotBelongToStore
 
 	| cart |
@@ -87,7 +141,7 @@ test02CanNotAddItemsThatDoNotBelongToStore
 		should: [ cart add: testObjectsFactory itemNotSellByTheStore ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidItemErrorMessage.
+			self assert: anError messageText = Cart invalidItemErrorMessage.
 			self assert: cart isEmpty ]! !
 
 !CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
@@ -100,7 +154,7 @@ test03AfterAddingAnItemTheCartIsNotEmptyAnymore
 	cart add: testObjectsFactory itemSellByTheStore.
 	self deny: cart isEmpty ! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'CZ 6/18/2018 02:11:26'!
 test04CanNotAddNonPositiveNumberOfItems
 
 	| cart |
@@ -111,10 +165,10 @@ test04CanNotAddNonPositiveNumberOfItems
 		should: [cart add: 0 of: testObjectsFactory itemSellByTheStore ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidQuantityErrorMessage.
+			self assert: anError messageText = Cart invalidQuantityErrorMessage.
 			self assert: cart isEmpty ]! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'CZ 6/18/2018 02:11:21'!
 test05CanNotAddMoreThanOneItemNotSellByTheStore
 
 	| cart |
@@ -125,7 +179,7 @@ test05CanNotAddMoreThanOneItemNotSellByTheStore
 		should: [cart add: 2 of: testObjectsFactory itemNotSellByTheStore  ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidItemErrorMessage.
+			self assert: anError messageText = Cart invalidItemErrorMessage.
 			self assert: cart isEmpty ]! !
 
 !CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:11'!
@@ -321,22 +375,54 @@ Object subclass: #APIRestInterface
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!APIRestInterface methodsFor: 'initialization' stamp: 'CZ 6/14/2018 21:14:13'!
+!APIRestInterface methodsFor: 'initialization' stamp: 'CZ 6/18/2018 01:36:37'!
 initializeAcceptingItemsOf: aCatalog with: aUserList
-	carts := Dictionary new.
+	carts := OrderedCollection new.
 	catalog := aCatalog.
 	userList := aUserList.! !
 
 
-!APIRestInterface methodsFor: 'creating' stamp: 'CZ 6/14/2018 21:36:16'!
-createCartAs: aUsername with: aPassword on: aDateTime
-	self assertExisting: aUsername And: aPassword.
-	^1.! !
+!APIRestInterface methodsFor: 'asserting' stamp: 'CZ 6/18/2018 02:29:37'!
+assert: aCartId isExpiredOn: aDateAndTime
+	(aDateAndTime - (carts at: aCartId ) value) totalMinutes > 30 ifTrue:[self error: self class expiredCartErrorMessage ].! !
 
+!APIRestInterface methodsFor: 'asserting' stamp: 'CZ 6/18/2018 02:56:04'!
+assert: aCartId isValidToUseOn: aDateAndTime
+	self assertExists: aCartId.
+	self assert: aCartId isExpiredOn: aDateAndTime.! !
 
 !APIRestInterface methodsFor: 'asserting' stamp: 'CZ 6/14/2018 21:35:01'!
 assertExisting: aUsername And: aPassword
 	((userList includesKey: aUsername) ifTrue: [(userList at: aUsername) = aPassword ] ifFalse: [false]) ifFalse: [self error: self class wrongUsernameOrPasswordErrorMessage ].! !
+
+!APIRestInterface methodsFor: 'asserting' stamp: 'CZ 6/18/2018 01:58:12'!
+assertExists: aCartId
+	^carts size >= aCartId ifFalse: [self error: self class nonExistingCartIdErrorMessage ].! !
+
+
+!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 02:55:38'!
+add: aQuantity of: anItem to: aCartId on: aDateAndTime 
+	self assert: aCartId isValidToUseOn: aDateAndTime.
+	
+	(carts at: aCartId ) key add: aQuantity of: anItem.
+	(carts at: aCartId ) value: aDateAndTime .! !
+
+!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 01:42:26'!
+createCartAs: aUsername with: aPassword on: aDateTime
+	|cart|
+	self assertExisting: aUsername And: aPassword.
+
+	cart := Cart acceptingItemsOf: catalog.
+	carts add: (cart -> aDateTime).	
+
+	^carts size.! !
+
+!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 03:20:11'!
+listCart: cartId on: aDateTime
+	self assert: cartId isValidToUseOn: aDateTime.
+	
+	(carts at: cartId ) value: aDateTime .
+	^(carts at: cartId ) key items.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -348,6 +434,14 @@ APIRestInterface class
 acceptingItemsOf: aCatalog and: aUserList
 	^self new initializeAcceptingItemsOf: aCatalog with:aUserList.! !
 
+
+!APIRestInterface class methodsFor: 'error' stamp: 'CZ 6/18/2018 02:27:41'!
+expiredCartErrorMessage
+	^'Sesión del carrito expirada'.! !
+
+!APIRestInterface class methodsFor: 'error' stamp: 'CZ 6/18/2018 01:58:43'!
+nonExistingCartIdErrorMessage
+	^'Id de carrito inexistente.'.! !
 
 !APIRestInterface class methodsFor: 'error' stamp: 'CZ 6/14/2018 21:23:09'!
 wrongUsernameOrPasswordErrorMessage
@@ -361,26 +455,15 @@ Object subclass: #Cart
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-invalidItemErrorMessage
-	
-	^'Item is not in catalog'! !
-
-!Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-invalidQuantityErrorMessage
-	
-	^'Invalid number of items'! !
-
-
-!Cart methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 18:06'!
+!Cart methodsFor: 'assertions' stamp: 'CZ 6/18/2018 02:13:40'!
 assertIsValidItem: anItem
 
-	(catalog includesKey: anItem) ifFalse: [ self error: self invalidItemErrorMessage ]! !
+	(catalog includesKey: anItem) ifFalse: [ self error: self class invalidItemErrorMessage ]! !
 
-!Cart methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 17:51'!
+!Cart methodsFor: 'assertions' stamp: 'CZ 6/18/2018 02:13:45'!
 assertIsValidQuantity: aQuantity
 
-	aQuantity strictlyPositive ifFalse: [ self error: self invalidQuantityErrorMessage ]! !
+	aQuantity strictlyPositive ifFalse: [ self error: self class invalidQuantityErrorMessage ]! !
 
 
 !Cart methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 17:48'!
@@ -389,6 +472,10 @@ initializeAcceptingItemsOf: aCatalog
 	catalog := aCatalog.
 	items := OrderedCollection new.! !
 
+
+!Cart methodsFor: 'queries' stamp: 'CZ 6/18/2018 03:19:54'!
+items
+	^items copy.! !
 
 !Cart methodsFor: 'queries' stamp: 'HernanWilkinson 6/17/2013 17:45'!
 occurrencesOf: anItem
@@ -441,6 +528,17 @@ Cart class
 acceptingItemsOf: aCatalog
 
 	^self new initializeAcceptingItemsOf: aCatalog ! !
+
+
+!Cart class methodsFor: 'error' stamp: 'CZ 6/18/2018 02:10:52'!
+invalidItemErrorMessage
+	
+	^'Item is not in catalog'! !
+
+!Cart class methodsFor: 'error' stamp: 'CZ 6/18/2018 02:11:03'!
+invalidQuantityErrorMessage
+	
+	^'Invalid number of items'! !
 
 
 !classDefinition: #Cashier category: #TusLibros!
@@ -656,6 +754,14 @@ defaultMerchantProcessor
 	
 	^ MerchantProcessor withResponse:[true].! !
 
+
+!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'CZ 6/18/2018 02:01:36'!
+defaultInterface
+	|aCatalog aUserList|
+	aCatalog := self defaultCatalog.	
+	aUserList := self defaultUserList.	
+	
+	^ APIRestInterface acceptingItemsOf: aCatalog and: aUserList.! !
 
 !StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'CZ 6/14/2018 21:26:32'!
 defaultUserList
