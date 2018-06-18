@@ -249,7 +249,7 @@ test11_2CannotCheckoutAnExpiredCart
 
 ! !
 
-!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 16:49:07'!
+!APIRestInterfaceTest methodsFor: 'Testing' stamp: 'CZ 6/18/2018 17:10:38'!
 test12CannotCheckoutPayingWithExpiredCard
 
 	|interface aDateTime cartId|
@@ -617,10 +617,19 @@ cashier := Cashier
 
 !classDefinition: #APIRestInterface category: #TusLibros!
 Object subclass: #APIRestInterface
-	instanceVariableNames: 'carts catalog userList merchantProcessor salesBook clock'
+	instanceVariableNames: 'carts catalog userList merchantProcessor salesBook'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!APIRestInterface methodsFor: 'initialization' stamp: 'CZ 6/18/2018 16:59:30'!
+initializeAacceptingItemsOf: aCatalog forUsers: aUserList  registeringOn: aSalesBook debitingVia: aMerchantProcessor
+	carts := OrderedCollection new.
+	catalog := aCatalog.
+	userList := aUserList.
+	salesBook := aSalesBook.
+	merchantProcessor := aMerchantProcessor.
+! !
 
 !APIRestInterface methodsFor: 'initialization' stamp: 'lp 6/18/2018 12:16:38'!
 initializeAacceptingItemsOf: aCatalog forUsers: aUserList  registeringOn: aSalesBook debitingVia: aMerchantProcessor measuringTimeWith: aClock
@@ -666,22 +675,21 @@ add: aQuantity of: anItem to: aCartId on: aDateAndTime
 	(carts at: aCartId ) key add: aQuantity of: anItem.
 	(carts at: aCartId ) value: aDateAndTime .! !
 
-!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 16:48:13'!
+!APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 17:11:44'!
 checkoutCartWithId: aCartId payingWith: aCreditCardNumber ownedBy: aName andExpirationDate: anExpirationDate on: aDateTime
 	|creditCard cart|
 	creditCard := CreditCard expiringOn: anExpirationDate .
 	
-	self assertExists: aCartId.
 	self assert: aCartId isValidToUseOn: aDateTime.
 
 	cart := (carts at: aCartId) key .
 	
 	self assertNotEmpty: cart.
-	self assertCreditCard: creditCard isNotExpiredAt: clock now. 
+	self assertCreditCard: creditCard isNotExpiredAt: aDateTime date. 
 
 	(carts at: aCartId ) value: aDateTime .
 
-	(Cashier toCheckout: cart ownedBy: aName charging: creditCard on: clock now registeringOn: salesBook via: merchantProcessor ) checkOut.
+	(Cashier toCheckout: cart ownedBy: aName charging: creditCard on: aDateTime date registeringOn: salesBook via: merchantProcessor ) checkOut.
 ! !
 
 !APIRestInterface methodsFor: 'system messages' stamp: 'CZ 6/18/2018 01:42:26'!
@@ -736,10 +744,15 @@ withCartWithId: aCartId do: aBlock
 APIRestInterface class
 	instanceVariableNames: ''!
 
-!APIRestInterface class methodsFor: 'instance creation' stamp: 'lp 6/18/2018 12:15:29'!
+!APIRestInterface class methodsFor: 'instance creation' stamp: 'CZ 6/18/2018 16:59:20'!
+acceptingItemsOf: aCatalog forUsers: aUserList registeringOn: aSalesBook debitingVia: aMerchantProcessor
+
+	^self new initializeAacceptingItemsOf: aCatalog forUsers: aUserList  registeringOn: aSalesBook debitingVia: aMerchantProcessor! !
+
+!APIRestInterface class methodsFor: 'instance creation' stamp: 'CZ 6/18/2018 16:59:16'!
 acceptingItemsOf: aCatalog forUsers: aUserList registeringOn: aSalesBook debitingVia: aMerchantProcessor measuringTimeWith: aClock
 
-	^self new initializeAacceptingItemsOf: aCatalog forUsers: aUserList  registeringOn: aSalesBook debitingVia: aMerchantProcessor measuringTimeWith: aClock! !
+	^self new initializeAacceptingItemsOf: aCatalog forUsers: aUserList  registeringOn: aSalesBook debitingVia: aMerchantProcessor! !
 
 
 !APIRestInterface class methodsFor: 'error' stamp: 'lp 6/18/2018 13:11:19'!
@@ -854,42 +867,6 @@ invalidItemErrorMessage
 invalidQuantityErrorMessage
 	
 	^'Invalid number of items'! !
-
-
-!classDefinition: #EphemeralCart category: #TusLibros!
-Cart subclass: #EphemeralCart
-	instanceVariableNames: 'owner lastUsedTime duration'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!EphemeralCart methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:43:19'!
-initializeFor: aClient at: aTime expiringAfter: aDuration 
-	owner := aClient.
-	lastUsedTime := aTime.
-	duration := aDuration ! !
-
-!EphemeralCart methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:53:58'!
-isExpiredAt: aTime 
-	^ false! !
-
-!EphemeralCart methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:45:00'!
-lastUsedAt: aTime 
-	lastUsedTime := aTime ! !
-
-!EphemeralCart methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:44:41'!
-owner
-	^ owner! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'EphemeralCart class' category: #TusLibros!
-EphemeralCart class
-	instanceVariableNames: ''!
-
-!EphemeralCart class methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:42:51'!
-for: aClient at: aTime expiringAfter: aDuration
-	^self new initializeFor: aClient at: aTime expiringAfter: aDuration ! !
 
 
 !classDefinition: #Cashier category: #TusLibros!
@@ -1048,24 +1025,6 @@ withResponse: aBlock
 	^self new initializeWithResponse: aBlock.! !
 
 
-!classDefinition: #MonthOfYear category: #TusLibros!
-Object subclass: #MonthOfYear
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MonthOfYear class' category: #TusLibros!
-MonthOfYear class
-	instanceVariableNames: ''!
-
-!MonthOfYear class methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:34'!
-of: aDate 
-	self shouldBeImplemented.! !
-
-
 !classDefinition: #Sale category: #TusLibros!
 Object subclass: #Sale
 	instanceVariableNames: 'total elements user items'
@@ -1114,10 +1073,6 @@ createCart
 	
 	^Cart acceptingItemsOf: self defaultCatalog! !
 
-!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'lp 6/18/2018 12:28:20'!
-createClock
-	clock := TestingClock with: self today.! !
-
 !StoreTestObjectsFactory methodsFor: 'cart' stamp: 'HernanWilkinson 6/17/2013 18:08'!
 defaultCatalog
 	
@@ -1131,11 +1086,10 @@ defaultMerchantProcessor
 	^ MerchantProcessor withResponse:[true].! !
 
 
-!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:29:57'!
+!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'CZ 6/18/2018 17:00:11'!
 defaultInterface
-	self createClock.
-	
-	^  APIRestInterface acceptingItemsOf: self defaultCatalog forUsers:  self defaultUserList registeringOn: OrderedCollection new debitingVia: self defaultMerchantProcessor 		measuringTimeWith: clock . ! !
+
+	^  APIRestInterface acceptingItemsOf: self defaultCatalog forUsers:  self defaultUserList registeringOn: OrderedCollection new debitingVia: self defaultMerchantProcessor! !
 
 !StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'CZ 6/14/2018 21:26:32'!
 defaultUserList
@@ -1204,41 +1158,3 @@ itemSellByTheStore
 itemSellByTheStorePrice
 	
 	^10! !
-
-
-!classDefinition: #TestingClock category: #TusLibros!
-Object subclass: #TestingClock
-	instanceVariableNames: 'now'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!TestingClock methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:21:53'!
-initializeWith: aTime 
-
-	now := aTime ! !
-
-!TestingClock methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:53:37'!
-moveForwardInTime: aDuration 
-	
-	now := now .! !
-
-!TestingClock methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:22:01'!
-now
-	
-	^ now! !
-
-!TestingClock methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:22:16'!
-today
-	
-	^now asDate! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'TestingClock class' category: #TusLibros!
-TestingClock class
-	instanceVariableNames: ''!
-
-!TestingClock class methodsFor: 'as yet unclassified' stamp: 'lp 6/18/2018 12:49:20'!
-with: aDateAndTime
-	^ self new initializeWith: aDateAndTime.! !
